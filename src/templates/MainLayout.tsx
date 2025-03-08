@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import Footer from "./Footer";
+import Footer from "./footerTemplate";
 import Navbar from "./Navbar";
 import { Toaster } from "@/components/ui/sonner"
 import BodyContainer from '../styles/BodyStyle';
@@ -10,18 +10,16 @@ interface MainLayoutProps {
 
 const MainLayout = ({ children }: MainLayoutProps) => {
     return (
-        <BodyContainer className="flex flex-col bg-slate-600">
-            <Navbar/>
-            <div className="flex flex-col min-h-screen">
-                <main className="flex-grow">
-                    {children}
-                </main>
-                
-            </div>
-            <Toaster />
+        <BodyContainer className="flex flex-col min-h-screen bg-slate-600">
+            <Navbar />
+            <main className="flex-grow flex items-center justify-center">
+                {children}
+            </main>
             <Footer />
+            <Toaster />
         </BodyContainer>
     );
 };
+
 
 export default MainLayout;

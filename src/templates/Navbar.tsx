@@ -1,5 +1,5 @@
 import * as React from "react"
- 
+import { PublicRoutes, PrivateRoutes } from "@/routes/routes"
 import { cn } from "@/lib/utils"
 
 import {
@@ -57,7 +57,7 @@ const Navbar = () => {
     <div className="flex items-center">
       <NavigationMenuList className="flex">
         <NavigationMenuItem>
-          <NavigationMenuTrigger >Components</NavigationMenuTrigger>
+          <NavigationMenuTrigger className="bg-slate-600 hover:bg-slate-800">Components</NavigationMenuTrigger>
           <NavigationMenuContent>
             <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
               {components.map((component) => (
@@ -82,8 +82,13 @@ const Navbar = () => {
   <NavigationMenu>
     <NavigationMenuList className="flex mr-2">
         <NavigationMenuItem>
-          <NavigationMenuLink href="/login" className="">
+          <NavigationMenuLink href={PublicRoutes.LOGIN} className="">
             Login
+          </NavigationMenuLink>
+        </NavigationMenuItem>
+        <NavigationMenuItem>
+          <NavigationMenuLink href={PublicRoutes.REGISTER} className="">
+            Registrase
           </NavigationMenuLink>
         </NavigationMenuItem>
       </NavigationMenuList>
