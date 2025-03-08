@@ -10,7 +10,7 @@ interface MainLayoutProps {
 
 const MainLayout = ({ children }: MainLayoutProps) => {
     return (
-        <BodyContainer className="flex flex-col min-h-screen bg-slate-600">
+        <BodyContainer className="flex flex-col min-h-screen bg-blue-50">
             <Navbar />
             <main className="flex-grow flex items-center justify-center">
                 {children}

@@ -1,6 +1,8 @@
+import {useEffect, useState} from "react"
 import * as React from "react"
 import { PublicRoutes, PrivateRoutes } from "@/routes/routes"
 import { cn } from "@/lib/utils"
+
 
 import {
   NavigationMenu,
@@ -50,14 +52,40 @@ const components: { title: string; href: string; description: string }[] = [
 ]
 
 
+
+
+
 const Navbar = () => {
+
+  const [isSticky, setIsSticky] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 0) {
+        setIsSticky(true);
+      } else {
+        setIsSticky(false);
+      }
+  };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
   return (
-<div className="bg-slate-800 flex items-center justify-between p-4  shadow-md sticky top-0 z-50 ">
+<div className={`flex items-center justify-between p-3 shadow-md sticky top-0 z-50 transition-all duration-500 ease-in-out backdrop-blur-md`}
+      style={{
+        background: `rgba(15, 23, 42, ${isSticky ? 0.1 : 1})`,
+        color: `${isSticky ? "#020617" : "white"}`,
+      }}
+>
   <NavigationMenu>
     <div className="flex items-center">
       <NavigationMenuList className="flex">
         <NavigationMenuItem>
-          <NavigationMenuTrigger className="bg-slate-600 hover:bg-slate-800">Components</NavigationMenuTrigger>
+          <NavigationMenuTrigger className={isSticky ? "bg-slate-100 hover:bg-slate-800" : "bg-slate-500 hover:bg-slate-800"}>Components</NavigationMenuTrigger>
           <NavigationMenuContent>
             <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
               {components.map((component) => (

@@ -7,7 +7,7 @@ export const BodyContainer = styled.div`
     height: 100vh;
     width: 100vw;
     
-    color: ${colors.oroOff};
+    color: ${colors.crema};
     
 
     .text_title{
