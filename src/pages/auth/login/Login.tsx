@@ -54,7 +54,7 @@ const Login = () => {
           />
         </div>
 
-        <Button onClick={handleLogin} className="bg-blue-500 text-white w-full ">
+        <Button onClick={handleLogin} className="bg-slate-500 text-white w-full hover:bg-slate-600">
           Entrar
         </Button>
       </div>
