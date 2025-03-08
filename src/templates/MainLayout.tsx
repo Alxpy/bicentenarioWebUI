@@ -2,7 +2,7 @@ import { ReactNode } from "react";
 import Footer from "./Footer";
 import Navbar from "./Navbar";
 import { Toaster } from "@/components/ui/sonner"
-
+import BodyContainer from '../styles/BodyStyle';
 
 interface MainLayoutProps {
     children: ReactNode;
@@ -10,14 +10,17 @@ interface MainLayoutProps {
 
 const MainLayout = ({ children }: MainLayoutProps) => {
     return (
-        <div className="bg-blue-100  flex flex-col w-min-[100vw]">
-            <Navbar />
-            <main className="flex-grow">
-                {children}
-            </main>
+        <BodyContainer className="flex flex-col bg-slate-600">
+            <Navbar/>
+            <div className="flex flex-col min-h-screen">
+                <main className="flex-grow">
+                    {children}
+                </main>
+                
+            </div>
             <Toaster />
             <Footer />
-        </div>
+        </BodyContainer>
     );
 };
 

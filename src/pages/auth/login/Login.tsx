@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { apiService } from "@/service/apiservice";
+import  MainLayout  from '@/templates/MainLayout'
 
 const Login = () => {
   const [correo, setEmail] = useState("");
@@ -22,7 +23,8 @@ const Login = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
+    <MainLayout>
+      <div className="flex flex-col items-center justify-center min-h-screen p-4">
       <div className="w-full max-w-md bg-white shadow-lg rounded-lg p-6">
         <h2 className="text-2xl font-semibold text-center mb-4">Iniciar Sesión</h2>
 
@@ -34,7 +36,7 @@ const Login = () => {
             id="email"
             type="email"
             placeholder="Ingresa tu correo"
-            value={email}
+            value={correo}
             onChange={(e) => setEmail(e.target.value)}
             className="mt-1"
           />
@@ -46,17 +48,18 @@ const Login = () => {
             id="password"
             type="password"
             placeholder="********"
-            value={password}
+            value={contrasena}
             onChange={(e) => setPassword(e.target.value)}
             className="mt-1"
           />
         </div>
 
-        <Button onClick={handleLogin} className="w-full">
+        <Button onClick={handleLogin} className="bg-blue-500 text-white w-full ">
           Entrar
         </Button>
       </div>
     </div>
+      </MainLayout>
   );
 };
 
