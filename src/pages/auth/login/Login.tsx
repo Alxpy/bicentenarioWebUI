@@ -5,18 +5,18 @@ import { Button } from "@/components/ui/button";
 import { apiService } from "@/service/apiservice";
 
 const Login = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState(null);
+  const [correo, setEmail] = useState("");
+  const [contrasena, setPassword] = useState("");
+  const [error, setError] = useState("");
 
   const handleLogin = async () => {
-    setError(null); // Limpiar error anterior
+    setError(""); 
     try {
-      const data = { email, password };
+      const data = { correo, contrasena };
       const response = await apiService.create("auth/login", data);
       console.log(response);
-      // Aquí puedes manejar la respuesta, como redirigir al usuario
     } catch (err) {
+      console.error(err);
       setError("Error al iniciar sesión. Verifica tus credenciales.");
     }
   };
