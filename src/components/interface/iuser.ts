@@ -26,3 +26,9 @@ export interface iUser_token{
 export interface iUser_token{
     rol: number
 }
+
+export interface iUser{
+    roles: [];
+    nombre: string;
+    correo: string;
+}
