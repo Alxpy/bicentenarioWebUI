@@ -1,3 +1,6 @@
+import { useAtom } from 'jotai';
+import { emailAtom } from '@/context/context';
+import { useNavigate } from 'react-router-dom';
 import { useState } from "react";
 import { Button } from "../ui";
 import { Input } from "../ui";
@@ -5,6 +8,10 @@ import { Label } from "../ui";
 import { FaRegEye } from "react-icons/fa";
 import { FaRegEyeSlash } from "react-icons/fa";
 import SelectGen from "./SelectGen";
+import registerController from "@/controller/auth/registerController";
+import { toast } from "sonner"
+
+import {saveEmail} from "@/storage/session";
 
 interface RegisterProps {
     type_register: string;
@@ -25,6 +32,13 @@ const RegisterForm = (
         pais: "",
         ciudad: ""
     });
+
+    const [,setEmail] = useAtom(emailAtom);
+
+    const navigate = useNavigate();
+
+    const [responseMessage, setResponseMessage] = useState<string | null>(null);
+    const [responseType, setResponseType] = useState<string>();
 
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [passwordStrength, setPasswordStrength] = useState("");
@@ -93,12 +107,25 @@ const RegisterForm = (
         }
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        console.log(formData);
         if (validateForm()) {
-            alert("Registro exitoso");
+          const { message, type_message } = await registerController.register(formData);
+      
+          setResponseMessage(message);
+          setResponseType(type_message);
+      
+          if (type_message === "success") {
+            toast("Cuenta creada exitosamente"); 
+            setEmail(formData.correo);
+            saveEmail(formData.correo);
+            navigate("/verify");
+          } else {
+            toast("Error al crear la cuenta");
+          }
         }
-    };
+      };
 
     const handleUpdate = (e: React.FormEvent) => {
         e.preventDefault();
@@ -108,7 +135,7 @@ const RegisterForm = (
     }
 
     return (
-        <div className="flex items-center justify-center p-6 w-[90vw]">
+        <div className="flex items-center justify-center p-6 ">
             <div className="w-full max-w-2xl inset-shadow-sm inset-shadow-slate-950 rounded-3xl p-6 border border-gray-200"
                 style={{
                         background: "rgba(149, 149, 149, 0.4)",
@@ -191,6 +218,15 @@ const RegisterForm = (
                         }
                     </div>
                 </form>
+                <div className="flex items-center justify-center mt-4">
+                {responseMessage && (
+                    <div className={`p-4 rounded-lg w-full text-center 
+                    ${responseType === "success" ? "bg-green-200 text-green-800" : "bg-red-200 text-red-800"}`}>
+                    {responseMessage}
+                    </div>
+                )}
+                </div>
+                                
             </div>
         </div>
     );
