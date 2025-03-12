@@ -1,14 +1,16 @@
 import  MainLayout  from '@/templates/MainLayout'
-import { useEffect } from 'react'
 
+import {First_section} from './sections'
+import Second_section from './sections/second/Second_section'
 
 const Home = () => {
 
   return (
 
     <MainLayout>
-      <div className="">
-        <h1 className="text_title text-2xl font-bold text-center">Home</h1>
+      <div className="text-black">
+        <First_section />
+        <Second_section />
       </div>
     </MainLayout>
   )
