@@ -9,7 +9,6 @@ const FirstSection = () => {
   return (
     <section id="inicio" className="relative w-[100vw] sm:h-[50vw] md:h-[80vw] lg:h-[80w] flex flex-col items-center justify-center bg-gradient-to-b from-black to-blue-900">
       
-      {/* Fondo difuminado */}
       <div
         className="absolute inset-0 w-full h-full blur-3xl"
         style={{
@@ -21,14 +20,13 @@ const FirstSection = () => {
         }}
       ></div>
 
-      {/* Contenedor de imágenes */}
       <motion.div 
         className="relative flex flex-col items-center justify-center space-y-6 px-4 sm:px-6 md:px-8 lg:px-12"
         initial={{ opacity: 0, y: 50 }} 
         animate={{ opacity: 1, y: 0 }} 
         transition={{ duration: 1, ease: "easeOut" }}
       >
-        {/* Logo de letras */}
+      
         <motion.img
           src={letras}
           alt="Letras"
@@ -38,7 +36,6 @@ const FirstSection = () => {
           transition={{ duration: 2, delay: 1, ease: "easeOut" }}
         />
         
-        {/* Escudo con efecto de marca de agua */}
         <motion.img 
           src={escudo} 
           alt="Escudo" 
@@ -49,9 +46,7 @@ const FirstSection = () => {
         />
       </motion.div>
 
-      {/* Sección de enlaces */}
       <GrgLinks />
-      {/* Contador de días */}
       <CounterDays />
     </section>
   );
