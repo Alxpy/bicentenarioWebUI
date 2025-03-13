@@ -40,7 +40,21 @@ const dataNew:IDataNew[] = [
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed nonne merninisti licere mihi ista probare, quae sunt a te dicta? Refert tamen, quo modo.",
     date: "12/12/2021",
     image: "http://127.0.0.1:3000/images/illimani.jpg"
-    }
+  },
+  {
+    title: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+    description:
+      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed nonne merninisti licere mihi ista probare, quae sunt a te dicta? Refert tamen, quo modo.",
+    date: "12/12/2021",
+    image: "http://127.0.0.1:3000/images/salar-min.jpg"
+  },
+  {
+    title: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+    description:
+      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed nonne merninisti licere mihi ista probare, quae sunt a te dicta? Refert tamen, quo modo.",
+    date: "12/12/2021",
+    image: "http://127.0.0.1:3000/images/teleferico.jpg"
+  },
 ]
 
 

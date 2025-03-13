@@ -1,6 +1,6 @@
 import React from "react";
 import { Productos } from "./Productos";
-import { Eventos } from "./Eventos";
+import { Eventos } from "./Turismo";
 import { Separator } from "@/components/ui/separator";
 import logo_black from "@/assets/wallpers/logo_header_balck.png"
 
