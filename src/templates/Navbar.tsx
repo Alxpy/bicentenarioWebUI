@@ -3,6 +3,7 @@ import * as React from "react";
 import { PublicRoutes, PrivateRoutes } from "@/routes/routes";
 import { cn } from "@/lib/utils";
 import { getUser } from "@/storage/session";
+import  NavUser from './NavUser'
 
 import {
   NavigationMenu,
@@ -132,20 +133,9 @@ const Navbar = () => {
       <NavigationMenu>
         <NavigationMenuList className="flex mr-2">
           {isLogin ? (
-            <NavigationMenuItem>
-              <NavigationMenuTrigger
-                ref={triggerRef} // Referencia al botón
-                className={isSticky ? "bg-slate-100 hover:bg-slate-800" : "bg-slate-500 hover:bg-slate-800"}
-              >
-                {user.nombre}
-              </NavigationMenuTrigger>
-              <NavigationMenuContent align={calculateMenuAlignment()} className="max-w-[90vw] overflow-auto">
-                <ul className="grid w-[200px] gap-3 p-4">
-                  {componentsUser.map((component) => (
-                    <ListItemUser key={component.title} title={component.title} href={component.href} />
-                  ))}
-                </ul>
-              </NavigationMenuContent>
+            <NavigationMenuItem
+           >
+             <NavUser/>
             </NavigationMenuItem>
           ) : (
             <NavigationMenuItem>
