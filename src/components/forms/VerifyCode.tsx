@@ -5,6 +5,7 @@ import { Button } from '../ui';
 import { getEmail } from '@/storage/session';
 import { useNavigate } from 'react-router-dom';
 import {mesageResponse } from '@/components/interface/iresponse';
+import { IApiResponse } from '@/components/interface/iresponse';
 
 const VerifyCode = () => {
 
@@ -35,10 +36,9 @@ const VerifyCode = () => {
 
     const submitCode = async () => {
         const verificationCode = code.join('');
-        await apiService.get(`verify/email/${email}/${verificationCode }`).then((res) =>{
-            const response : mesageResponse = res.response;
-            console.log(response);
-            if (response.success ) {
+        await apiService.get(`verify/email/${email}/${verificationCode }`).then((res: IApiResponse) =>{
+            console.log(res);
+            if (res.success ) {
                 navigate('/auth');
             }
         }).catch (error => {
