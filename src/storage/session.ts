@@ -1,14 +1,6 @@
-import { iUser } from "@/components/interface/iuser";
-import { apiService } from "@/service/apiservice";
-
-export const saveLoginSession = async (session: string) => {
-    localStorage.setItem("session_token", JSON.stringify(session));
-    await apiService.get(`data?token=${session}`).then((res) => {
-        const user: iUser = res.data;
-        localStorage.setItem("user", JSON.stringify(user));
-    }).catch((error) => {
-    }
-    );
+export const saveLoginSession = async (data: any) => {
+    localStorage.setItem("session_token", JSON.stringify(data.token));
+    localStorage.setItem("user", JSON.stringify(data.user));
 }
 
 export const getLoginSession = () => {

@@ -38,7 +38,7 @@ const RegisterForm = (
     const navigate = useNavigate();
 
     const [responseMessage, setResponseMessage] = useState<string | null>(null);
-    const [responseType, setResponseType] = useState<string>();
+    const [responseType, setResponseType] = useState<boolean>();
 
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [passwordStrength, setPasswordStrength] = useState("");
@@ -116,8 +116,8 @@ const RegisterForm = (
           setResponseMessage(message);
           setResponseType(type_message);
       
-          if (type_message === "success") {
-            toast("Cuenta creada exitosamente"); 
+          if (type_message) {
+            toast(message); 
             setEmail(formData.correo);
             saveEmail(formData.correo);
             navigate("/verify");
@@ -135,8 +135,8 @@ const RegisterForm = (
     }
 
     return (
-        <div className="flex items-center justify-center p-6 ">
-            <div className="w-full max-w-2xl inset-shadow-sm inset-shadow-slate-950 rounded-3xl p-6 border border-gray-200"
+        <div className="flex items-center justify-center p-6 w-[100%] ">
+            <div className="h-full max-w-2xl inset-shadow-sm inset-shadow-slate-950 rounded-3xl p-6 border border-gray-200"
                 style={{
                         background: "rgba(149, 149, 149, 0.4)",
                       }}
@@ -152,7 +152,7 @@ const RegisterForm = (
                 <form onSubmit={
                     type_register == "create" ? handleSubmit : handleUpdate
                 } className="space-y-6">
-                    <div className="grid lg:grid-cols-2 gap-6 sm:grid-cols-1">
+                    <div className="grid lg:grid-cols-3 gap-6 sm:grid-cols-1">
                         {inputForm.map(({ id, label, type }) => (
                             <div key={id} className="flex flex-col">
                                 <Label htmlFor={id} className="text-slate-900 text_general text-lg font-semibold mb-1">{label}</Label>
@@ -221,7 +221,7 @@ const RegisterForm = (
                 <div className="flex items-center justify-center mt-4">
                 {responseMessage && (
                     <div className={`p-4 rounded-lg w-full text-center 
-                    ${responseType === "success" ? "bg-green-200 text-green-800" : "bg-red-200 text-red-800"}`}>
+                    ${responseType ? "bg-green-200 text-green-800" : "bg-red-200 text-red-800"}`}>
                     {responseMessage}
                     </div>
                 )}
