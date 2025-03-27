@@ -39,6 +39,19 @@ async function fetchAPI(endpoint, { method = 'GET', body = null, params = {} } =
 export const apiService = {
     create: (endpoint, body) => fetchAPI(endpoint, { method: 'POST', body }),  
     update: (endpoint, id, body) => fetchAPI(`${endpoint}/${id}`, { method: 'PUT', body }),  
+    update_simple: (endpoint,body) => fetchAPI(endpoint, { method: 'PUT', body }),
     get: (endpoint) => fetchAPI(endpoint, { method: 'GET' }),  
     delete: (endpoint) => fetchAPI(endpoint, { method: 'DELETE' }),  
 };
+
+
+export const fetchShortApi = async (rute,data:any) => {
+
+    const result = await axios.put(`${BASE_URL}/${rute}`, data,{
+        headers: {
+            token: localStorage.getItem('authToken')
+        }
+    } )
+    return result.data
+
+}

@@ -1,4 +1,7 @@
 import Login_form from '@/components/forms/Login_form';
+import { Link } from 'react-router-dom';
+import  {PasswordRecoveryDialog}  from '@/components/recoverypass/NewPass';
+import { Pass_form } from '@/components/forms/Pass_form';
 
 const Login = () => {
   return (
@@ -13,8 +16,17 @@ const Login = () => {
           Iniciar Sesión
         </h1>
         <Login_form />
+        <div className="flex justify-center mt-4">
+          <p className="text-sm text-gray-100">
+            ¿Olvidaste tu contraseña?{" "}
+            <PasswordRecoveryDialog />
+          </p>
+        </div>
       </div>
     </div>
+
+      
+
   );
 };
 
