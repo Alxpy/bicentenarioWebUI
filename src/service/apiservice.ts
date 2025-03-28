@@ -45,7 +45,7 @@ export const apiService = {
 };
 
 
-export const fetchShortApi = async (rute,data:any) => {
+export const fetchShortApi = async (rute: string,data:any) => {
 
     const result = await axios.put(`${BASE_URL}/${rute}`, data,{
         headers: {

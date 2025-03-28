@@ -135,100 +135,128 @@ const RegisterForm = (
     }
 
     return (
-        <div className="flex items-center justify-center p-6 w-[100%] ">
-            <div className="h-full max-w-2xl inset-shadow-sm inset-shadow-slate-950 rounded-3xl p-6 border border-gray-200"
-                style={{
-                        background: "rgba(149, 149, 149, 0.4)",
-                      }}
-            >
-                { type_register == "create" ? (
-                    <h2 className="text-5xl text_general text-lime-50 text-center mb-8">Crear Cuenta</h2>
-                ) : (
-                    <h2 className="text-5xl text_general text-center text-lime-100 mb-8">Actualizar Cuenta</h2>
-                )
+<div className="w-full">
+  {/* Mensaje de respuesta */}
+  {responseMessage && (
+    <div className={`mb-4 p-3 rounded-lg border flex items-center ${
+      responseType 
+        ? "bg-emerald-900/50 text-emerald-100 border-emerald-500/50" 
+        : "bg-red-900/50 text-red-100 border-red-500/50"
+    } backdrop-blur-sm`}>
+      {responseType ? (
+        <svg className="w-5 h-5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      ) : (
+        <svg className="w-5 h-5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      )}
+      <span>{responseMessage}</span>
+    </div>
+  )}
 
-                }
+  
 
-                <form onSubmit={
-                    type_register == "create" ? handleSubmit : handleUpdate
-                } className="space-y-6">
-                    <div className="grid lg:grid-cols-3 gap-6 sm:grid-cols-1">
-                        {inputForm.map(({ id, label, type }) => (
-                            <div key={id} className="flex flex-col">
-                                <Label htmlFor={id} className="text-slate-900 text_general text-lg font-semibold mb-1">{label}</Label>
-                                <div className="relative">
-                                {id === "genero" ? (
-                                        <SelectGen
-                                            value={formData.genero}
-                                            onChange={(value) => setFormData({ ...formData, genero: value })}
-                                        />
-                                    ) : (
-                                        <Input
-                                            id={id}
-                                            type={type}
-                                            value={formData[id as keyof typeof formData]}
-                                            onChange={handleChange}
-                                            placeholder={label}
-                                            className="w-full text_special text-lg border border-gray-300 bg-gray-50 text-gray-900 inset-shadow-sm inset-shadow-slate-800 rounded-lg px-4 py-2 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-                                        />
-                                    )}
-                                    {id === "contrasena" && (
-                                        <button
-                                            type="button"
-                                            onClick={() => setShowPassword(!showPassword)}
-                                            className="absolute inset-y-0 right-3 flex items-center text-gray-500 hover:text-gray-700"
-                                        >
-                                            {showPassword ? <FaRegEye/> : <FaRegEyeSlash/>}
-                                        </button>
-                                    )}
-                                </div>
-                                {id === "contrasena" && formData.contrasena && (
-                                    <p className={`mt-1 text-sm font-semibold ${
-                                        passwordStrength === "Débil" ? "text-red-500" :
-                                        passwordStrength === "Aceptable" ? "text-orange-500" :
-                                        passwordStrength === "Buena" ? "text-blue-500" : "text-green-500"
-                                    }`}>
-                                        Fortaleza: {passwordStrength}
-                                    </p>
-                                )}
-                                {errors[id] && (
-                                    <p className="text-red-500 text-sm mt-1">{errors[id]}</p>
-                                )}
-                            </div>
-                        ))}
-                    </div>
-
-                    <div className="flex items-center justify-center">
-                        { type_register == "create" ? (
-                            <Button
-                            type="submit"
-                            className="w-[50%]  bg-blue-600 text-white font-semibold py-3 rounded-lg hover:bg-blue-700 transition shadow-lg"
-                        >
-                            Registrarse
-                        </Button>
-                        ) :
-                        (<Button
-                            type="submit"
-                            className="w-[50%]  bg-blue-600 text-white font-semibold py-3 rounded-lg hover:bg-blue-700 transition shadow-lg"
-                        >
-                            Actualizar
-                        </Button>
-                        )
-
-                        }
-                    </div>
-                </form>
-                <div className="flex items-center justify-center mt-4">
-                {responseMessage && (
-                    <div className={`p-4 rounded-lg w-full text-center 
-                    ${responseType ? "bg-green-200 text-green-800" : "bg-red-200 text-red-800"}`}>
-                    {responseMessage}
-                    </div>
+  <form onSubmit={type_register == "create" ? handleSubmit : handleUpdate} className="space-y-6">
+    <div className="grid lg:grid-cols-2 gap-6">
+      {inputForm.map(({ id, label, type }) => (
+        <div key={id} className="space-y-2">
+          <label htmlFor={id} className="block text-sm font-medium text-gray-300">
+            {label}
+          </label>
+          <div className="relative">
+            {id === "genero" ? (
+              <SelectGen
+                value={formData.genero}
+                onChange={(value) => setFormData({ ...formData, genero: value })}
+                className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-lg text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition"
+              />
+            ) : (
+              <div className="relative">
+                <input
+                  id={id}
+                  type={id === "contrasena" && !showPassword ? "password" : "text"}
+                  value={formData[id as keyof typeof formData]}
+                  onChange={handleChange}
+                  placeholder={label}
+                  className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition"
+                />
+                {id === "contrasena" && (
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute inset-y-0 right-3 flex items-center text-cyan-400 hover:text-cyan-300 transition"
+                  >
+                    {showPassword ? (
+                      <FaRegEye className="w-5 h-5" />
+                    ) : (
+                      <FaRegEyeSlash className="w-5 h-5" />
+                    )}
+                  </button>
                 )}
-                </div>
-                                
+              </div>
+            )}
+          </div>
+          
+          {id === "contrasena" && formData.contrasena && (
+            <div className="mt-2">
+              <div className="w-full bg-gray-700 rounded-full h-2">
+                <div
+                  className={`h-2 rounded-full ${
+                    passwordStrength === "Débil" ? "bg-red-500" :
+                    passwordStrength === "Aceptable" ? "bg-orange-500" :
+                    passwordStrength === "Buena" ? "bg-blue-500" : "bg-green-500"
+                  }`}
+                  style={{
+                    width: 
+                      passwordStrength === "Débil" ? "30%" :
+                      passwordStrength === "Aceptable" ? "60%" :
+                      passwordStrength === "Buena" ? "80%" : "100%"
+                  }}
+                ></div>
+              </div>
+              <p className={`text-xs mt-1 font-medium ${
+                passwordStrength === "Débil" ? "text-red-400" :
+                passwordStrength === "Aceptable" ? "text-orange-400" :
+                passwordStrength === "Buena" ? "text-blue-400" : "text-green-400"
+              }`}>
+                Fortaleza: {passwordStrength}
+              </p>
             </div>
+          )}
+          
+          {errors[id] && (
+            <p className="text-red-400 text-xs mt-1 flex items-center">
+              <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              {errors[id]}
+            </p>
+          )}
         </div>
+      ))}
+    </div>
+
+    <div className="pt-4">
+      <button
+        type="submit"
+        className={`w-full py-3 px-6 text-white font-medium rounded-lg hover:opacity-90 transition-all shadow-lg flex items-center justify-center group ${
+          type_register == "create" 
+            ? "bg-gradient-to-r from-emerald-500 to-cyan-600 hover:shadow-cyan-500/30" 
+            : "bg-gradient-to-r from-amber-500 to-orange-600 hover:shadow-orange-500/30"
+        }`}
+      >
+        <span className="mr-2">
+          {type_register == "create" ? "Registrarse" : "Actualizar"}
+        </span>
+        <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+        </svg>
+      </button>
+    </div>
+  </form>
+</div>
     );
 };
 

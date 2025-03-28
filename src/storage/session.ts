@@ -1,3 +1,5 @@
+import { iUser } from "@/components/interface";
+
 export const saveLoginSession = async (data: any) => {
     localStorage.setItem("session_token", JSON.stringify(data.token));
     localStorage.setItem("user", JSON.stringify(data.user));
@@ -5,7 +7,7 @@ export const saveLoginSession = async (data: any) => {
 
 export const getLoginSession = () => {
     const session = localStorage.getItem("session_token");
-    return session ? JSON.parse(session) : null;
+    return session;
 }
 
 export const getUser = () => {
@@ -15,6 +17,7 @@ export const getUser = () => {
 
 export const removeLoginSession = () => {
     localStorage.removeItem("user");
+    localStorage.removeItem("session_token");
 }
 
 export const saveEmail = (email: string) => {

@@ -1,25 +1,13 @@
 import { Navigate, Outlet } from "react-router-dom";
-import { useJwt } from "react-jwt";
 import { PublicRoutes } from "@/routes/routes";
-import { apiService } from "@/services/apiServices";
 import React from "react";
+import { getLoginSession } from "@/storage/session";
 
 export const AdminGuard = () => {
     const checkAuthorized = () => {
-        const token = localStorage.getItem('authToken');
+        const token = getLoginSession();
         if (token) {
-            try {
-                const decodedToken = useJwt(token).decodedToken;
-                if (decodedToken && decodedToken.role === "ADMIN") {
-                    return true;
-                } else {
-                    console.error("Access denied: Invalid role.");
-                    return false;
-                }
-            } catch (error) {
-                console.error("Error decoding token", error);
-                return false;
-            }
+            return true;
         } else {
             console.error("No token found.");
             return false;
@@ -37,7 +25,7 @@ export const AdminGuard = () => {
         return <div>Loading...</div>;
     }
 
-    return isAuthorized ? <Outlet /> : <Navigate replace to={PublicRoutes.LOGIN} />;
+    return isAuthorized ? <Outlet /> : <Navigate replace to={PublicRoutes.HOME} />;
 };
 
 export default AdminGuard;

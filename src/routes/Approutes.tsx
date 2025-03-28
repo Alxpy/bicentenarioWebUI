@@ -3,6 +3,7 @@ import { Home,Login,Register, Auth, Verify } from '../pages';
 import RoutesNotFound  from '@/utilities/RoutesNotFound';
 import {PublicRoutes, PrivateRoutesAdmin } from './routes'
 import {AuthGuard, AdminGuard} from '@/guards';
+import { Admin } from '@/pages/admin/Admin';
 
 const AppRoutes = () => {
   return (
@@ -16,7 +17,7 @@ const AppRoutes = () => {
         <Route element={<AuthGuard/>}>
 
           <Route element={<AdminGuard/>}>
-            <Route path={`${PrivateRoutesAdmin.BASE}/*`} element={<>ADMIN</>}/>
+            <Route path={`${PrivateRoutesAdmin.BASE}/*`} element={<Admin/>}/>
           </Route>
         </Route>
         
