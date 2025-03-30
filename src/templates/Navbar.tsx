@@ -46,16 +46,6 @@ const components: { title: string; href: string; description: string }[] = [
   
 ];
 
-const componentsUser: { title: string; href: string }[] = [
-  {
-    title: "Perfil",
-    href: "/perfil",
-  },
-  {
-    title: "Cerrar Sesión",
-    href: "/logout",
-  },
-];
 
 const Navbar = () => {
   const [isSticky, setIsSticky] = useState(false);
@@ -86,20 +76,7 @@ const Navbar = () => {
     }
   }, [user]);
 
-  // Función para calcular si el menú debe abrirse a la izquierda o a la derecha
-  const calculateMenuAlignment = () => {
-    if (triggerRef.current) {
-      const triggerRect = triggerRef.current.getBoundingClientRect();
-      const spaceOnRight = window.innerWidth - triggerRect.right;
-      const spaceOnLeft = triggerRect.left;
 
-      // Si hay más espacio a la izquierda, abre el menú hacia la izquierda
-      if (spaceOnRight < 300 && spaceOnLeft > 300) {
-        return "start"; // Alinea a la izquierda
-      }
-    }
-    return "end"; // Por defecto, alinea a la derecha
-  };
 
   return (
     <div
@@ -110,13 +87,18 @@ const Navbar = () => {
       }}
     >
       {/* Sección izquierda */}
-      <NavigationMenu>
+      <NavigationMenu>       
         <NavigationMenuList className="flex">
+        <NavigationMenuItem>
+            <NavigationMenuLink href={PublicRoutes.HOME} className="text-xl ">
+              Inicio
+            </NavigationMenuLink>
+          </NavigationMenuItem>   
           <NavigationMenuItem>
             <NavigationMenuTrigger className={isSticky ? "bg-slate-100 hover:bg-slate-800" : "bg-slate-500 hover:bg-slate-800"}>
               Components
             </NavigationMenuTrigger>
-            <NavigationMenuContent align="start" className="max-w-[90vw] overflow-auto">
+            <NavigationMenuContent  className="max-w-[90vw] overflow-auto">
               <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
                 {components.map((component) => (
                   <ListItem key={component.title} title={component.title} href={component.href}>

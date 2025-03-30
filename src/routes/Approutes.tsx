@@ -1,8 +1,9 @@
-import { BrowserRouter, Route} from 'react-router-dom';
-import { Home,Login,Register, Auth, Verify } from '../pages';
-import RoutesNotFound  from '@/utilities/RoutesNotFound';
-import {PublicRoutes, PrivateRoutesAdmin } from './routes'
-import {AuthGuard, AdminGuard} from '@/guards';
+// AppRoutes.tsx
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { Home, Login, Register, Auth, Verify } from '../pages';
+import RoutesNotFound from '@/utilities/RoutesNotFound';
+import { PublicRoutes, PrivateRoutesAdmin } from './routes';
+import { AuthGuard, AdminGuard } from '@/guards';
 import { Admin } from '@/pages/admin/Admin';
 
 const AppRoutes = () => {
@@ -11,16 +12,17 @@ const AppRoutes = () => {
       <RoutesNotFound>
         <Route path={PublicRoutes.HOME} element={<Home />} />
         <Route path={PublicRoutes.LOGIN} element={<Login />} />
-        <Route path={PublicRoutes.REGISTER} element={<Register />} />   
+        <Route path={PublicRoutes.REGISTER} element={<Register />} />
         <Route path={PublicRoutes.AUTH} element={<Auth />} />
         <Route path={PublicRoutes.VERIFY} element={<Verify />} />
-        <Route element={<AuthGuard/>}>
 
-          <Route element={<AdminGuard/>}>
-            <Route path={`${PrivateRoutesAdmin.BASE}/*`} element={<Admin/>}/>
+        <Route element={<AuthGuard />}>
+          <Route element={<AdminGuard />}>
+            <Route path={`${PrivateRoutesAdmin.BASE}/*`} element={<Admin />}>
+            </Route>
           </Route>
         </Route>
-        
+
       </RoutesNotFound>
     </BrowserRouter>
   );

@@ -2,48 +2,55 @@ import axios from 'axios';
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
-async function fetchAPI(endpoint, { method = 'GET', body = null, params = {} } = {}) {
-    const token = localStorage.getItem('authToken');
-
-    let headers = {
-        'Accept': 'application/json',
-        'Authorization': token ? `Bearer ${token}` : undefined
-    };
-
-    let data = undefined;
-    if (body) {
-        if (body instanceof FormData) {
-            data = body;
-        } else {
-            headers['Content-Type'] = 'application/json';
-            data = JSON.stringify(body);
-        }
+// Interceptor para manejar errores globalmente
+axios.interceptors.response.use(
+  response => response,
+  error => {
+    if (error.response?.status === 401) {
+      localStorage.removeItem('authToken');
+      window.location.href = '/auth';
     }
+    return Promise.reject(error);
+  }
+);
 
-    try {
-        const response = await axios({
-            method,
-            headers,
-            url: `${BASE_URL}/${endpoint}`,
-            data,
-            params
-        });
+async function fetchAPI(endpoint: string, { 
+  method = 'GET', 
+  body = null, 
+  params = {} 
+} = {}) {
+  const token = localStorage.getItem('authToken');
 
-        return response.data;
-    } catch (error) {
-        console.error("Error en la llamada a la API:", error);
-        throw error;
-    }
+  const config = {
+    method,
+    url: `${BASE_URL}/${endpoint}`,
+    headers: {
+      'Accept': 'application/json',
+      'Authorization': token ? `Bearer ${token}` : undefined,
+      ...(body && !(body instanceof FormData) && { 'Content-Type': 'application/json' })
+    },
+    data: body instanceof FormData ? body : body ? JSON.stringify(body) : undefined,
+    params
+  };
+
+  try {
+    const response = await axios(config);
+    return response.data;
+  } catch (error) {
+    console.error(`API Error [${method} ${endpoint}]:`, error);
+    throw error;
+  }
 }
 
 export const apiService = {
-    create: (endpoint, body) => fetchAPI(endpoint, { method: 'POST', body }),  
-    update: (endpoint, id, body) => fetchAPI(`${endpoint}/${id}`, { method: 'PUT', body }),  
-    update_simple: (endpoint,body) => fetchAPI(endpoint, { method: 'PUT', body }),
-    get: (endpoint) => fetchAPI(endpoint, { method: 'GET' }),  
-    delete: (endpoint) => fetchAPI(endpoint, { method: 'DELETE' }),  
+  create: (endpoint: string, body: any) => fetchAPI(endpoint, { method: 'POST', body }),
+  update: (endpoint: string, id: string, body: any) => 
+    fetchAPI(`${endpoint}/${id}`, { method: 'PUT', body }),
+  update_simple: (endpoint: string, body: any) => 
+    fetchAPI(endpoint, { method: 'PUT', body }),
+  get: (endpoint: string, params = {}) => fetchAPI(endpoint, { method: 'GET', params }),
+  delete: (endpoint: string) => fetchAPI(endpoint, { method: 'DELETE' }),
 };
-
 
 export const fetchShortApi = async (rute: string,data:any) => {
 

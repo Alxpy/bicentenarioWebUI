@@ -26,16 +26,15 @@ const Login_form = () => {
 
   const handleLogin = async () => {
     setError("");
-
+/*
     if (!captchaToken) {
       setError("Por favor, completa el reCAPTCHA.");
       return;
     }
-
+*/
     try {
       const payload = {
-        ...user_login,
-        captcha: captchaToken, 
+        ...user_login
       };
 
       await apiService.create("login", payload).then((response : IApiResponse) => {

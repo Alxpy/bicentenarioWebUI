@@ -20,3 +20,4 @@ export const PrivateRoutesAdmin = {
     VENTAS : 'ventas',
     SETTINGS : 'settings',
 };
+

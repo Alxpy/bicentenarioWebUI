@@ -1,30 +1,39 @@
-import { useJwt } from "react-jwt"; 
 import { Navigate, Outlet } from "react-router-dom";
 import { PublicRoutes } from "@/routes/routes";
-import { iUser_token } from "@/components/interface/iuser";
+import { useEffect, useState } from "react";
+import { apiService } from "@/service/apiservice";
 import { getLoginSession } from "@/storage/session";
 
 export const AuthGuard = () => {
+  const [isValid, setIsValid] = useState<boolean | null>(null);
 
-     const checkAuthentication = () => {
-        const token = getLoginSession();
-        if (token) {
-            try {
-                return true;
-                const { decodedToken } = useJwt(token);
-                const decoded: iUser_token = decodedToken as iUser_token;
-                const isExpired = decoded.expires ? decoded.expires * 1000 < Date.now() : true;
-                return (!isExpired);
-            } catch (error) {
-                console.error("Token inválido", error);
-                return false;
-            }
-        } else {
-            return false;
-        }
+  useEffect(() => {
+    const validateToken = async () => {
+      const token = getLoginSession();
+      if (!token) {
+        setIsValid(false);
+        return;
+      }
+
+      try {
+        const response = await apiService.get(`validate`, {        
+            token: token,
+            required_roles: 'Usuario'          
+        });
+        console.log(response);
+        setIsValid(response.valid);
+      } catch (error) {
+        console.error("Error validating token:", error);
+        setIsValid(false);
+      }
     };
 
-    return checkAuthentication() ? <Outlet/> : <Navigate replace to={PublicRoutes.AUTH} />;
-}
+    validateToken();
+  }, []);
 
-export default AuthGuard;
+  if (isValid === null) {
+    return <div className="flex justify-center items-center h-screen">Loading...</div>;
+  }
+
+  return isValid ? <Outlet /> : <Navigate replace to={PublicRoutes.AUTH} />;
+};
