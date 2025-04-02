@@ -19,5 +19,11 @@ export const PrivateRoutesAdmin = {
     USERS : 'users',
     VENTAS : 'ventas',
     SETTINGS : 'settings',
+    NEWS : 'news',
+    EVENTS : 'events',
+    HISTORY : 'history',
+    BIBLIOTHECA : 'biblioteca',
+    COMENTARIOS : 'comentarios',
+    ESTADISTICAS : 'estadisticas',
 };
 

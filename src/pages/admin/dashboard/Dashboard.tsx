@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import MainLayout from '@/templates/MainLayout'
-
+import { RoleLayout } from '@/templates/RoleLayout'
 const areas = [
   {
     title: 'Gestión de Usuarios',
@@ -63,7 +63,7 @@ const cardVariants = {
 
 export const Dashboard = () => {
   return (
-    <MainLayout>
+    <RoleLayout role="admin">
       <div className=" mt-1 bg-slate-900 rounded-xl p-6 space-y-6">
 
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -171,6 +171,6 @@ export const Dashboard = () => {
           </Card>
         </motion.div>
       </div>
-    </MainLayout>
+    </RoleLayout>
   )
 }
