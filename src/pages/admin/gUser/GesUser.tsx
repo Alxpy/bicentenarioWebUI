@@ -34,18 +34,20 @@ const GesUser = () => {
     
     try {
       const response = await apiService.get('usuarios');
-      setUsers(response.data);
+      // Asegurarnos de que siempre sea un array, incluso si la respuesta es null/undefined
+      setUsers(response.data || []);
       setLastUpdated(format(new Date(), 'PPpp', { locale: es }));
       toast.success(isRefreshing ? 'Lista de usuarios actualizada' : 'Usuarios cargados');
     } catch (error) {
       toast.error('Error al cargar usuarios');
       console.error(error);
+      // En caso de error, establecer un array vacío
+      setUsers([]);
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
   };
-
   const handleSelectUser = (user: IUserGeneral) => {
     setUser(user);
     setOpen(true);
