@@ -4,7 +4,8 @@ import { Dashboard } from './dashboard/Dashboard'
 import RoutesNotFound from '@/utilities/RoutesNotFound'
 
 import GetUser from './gUser/GesUser'
-
+import { GesHistoria } from '@/components/historia/GesHistoria'
+import  GesBiblioteca  from '@/components/biblioteca/GesBiblioteca'
 export const Admin = () => {
 
   return (
@@ -15,6 +16,8 @@ export const Admin = () => {
               element={<Dashboard />} 
             />  
             <Route path={PrivateRoutesAdmin.USERS} element={<GetUser />} />
+            <Route path={PrivateRoutesAdmin.HISTORY} element={<GesHistoria />} />
+            <Route path={PrivateRoutesAdmin.BIBLIOTHECA} element={<GesBiblioteca />} />
     </RoutesNotFound>
   )
 }

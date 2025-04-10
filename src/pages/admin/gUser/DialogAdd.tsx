@@ -9,7 +9,12 @@ import {
   } from "@/components/ui/dialog"
 import { openAdminCreateUserAtom, userAdminEditAtom } from '@/context/context'
 import RegisterForm from '@/components/forms/Register_form'
-export const DialogAdd = () => {
+interface UserSettingsProps {
+  onSuccess: () => void;
+}
+
+
+export const DialogAdd = ({onSuccess}:UserSettingsProps) => {
 
      const [open, setOpen] = useAtom(openAdminCreateUserAtom)
         const [user] = useAtom(userAdminEditAtom)

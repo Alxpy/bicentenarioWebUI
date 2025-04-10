@@ -3,14 +3,13 @@ import { Button } from '@/components/ui/button';
 import { RoleLayout } from '@/templates/RoleLayout';
 import { RefreshCw, PlusCircle, Loader2 } from 'lucide-react';
 import { apiService } from '@/service/apiservice';
-import { IUserGeneral } from '@/components/interface';
 import { useEffect, useState } from 'react';
 import { DialogEdit } from './DialogEdit';
 import { useAtom } from 'jotai';
 import { 
-  openAdminUserAtom, 
-  openAdminCreateUserAtom,
-  userAdminEditAtom 
+  openAdminHistoryAtom, 
+  openAdminCreateHistoryAtom,
+  historyAdminEditAtom 
 } from '@/context/context';
 import { DialogAdd } from './DialogAdd';
 import { format } from 'date-fns';
@@ -18,27 +17,91 @@ import { es } from 'date-fns/locale';
 import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
 
-const GesUser = () => {
-  const [users, setUsers] = useState<IUserGeneral[]>([]);
-  const [loading, setLoading] = useState(true);
+interface IHistory {
+  id: number;
+  titulo: string;
+  descripcion: string;
+  fechaInicio: string;
+  fechaFin: string;
+  imagen: string;
+  ubicacion: string;
+  categoria: string;
+  estado: boolean;
+}
+
+export const GesHistoria = () => {
+  // Datos por defecto
+  const defaultHistories: IHistory[] = [
+    {
+      id: 1,
+      titulo: 'Fundación de la ciudad',
+      descripcion: 'Evento histórico que marcó el inicio de nuestra ciudad',
+      fechaInicio: '1541-02-12',
+      fechaFin: '1541-02-12',
+      imagen: '/images/fundacion.jpg',
+      ubicacion: 'Plaza Principal',
+      categoria: 'Fundacional',
+      estado: true
+    },
+    {
+      id: 2,
+      titulo: 'Terremoto del siglo',
+      descripcion: 'El terremoto más devastador registrado en la historia local',
+      fechaInicio: '1647-05-13',
+      fechaFin: '1647-05-13',
+      imagen: '/images/terremoto.jpg',
+      ubicacion: 'Región completa',
+      categoria: 'Desastre natural',
+      estado: true
+    },
+    {
+      id: 3,
+      titulo: 'Independencia nacional',
+      descripcion: 'Celebración de la independencia del país',
+      fechaInicio: '1810-09-18',
+      fechaFin: '1810-09-18',
+      imagen: '/images/independencia.jpg',
+      ubicacion: 'Palacio de Gobierno',
+      categoria: 'Política',
+      estado: true
+    },
+    {
+      id: 4,
+      titulo: 'Construcción del ferrocarril',
+      descripcion: 'Llegada del ferrocarril que conectó la ciudad con el resto del país',
+      fechaInicio: '1850-01-01',
+      fechaFin: '1860-12-31',
+      imagen: '/images/ferrocarril.jpg',
+      ubicacion: 'Estación Central',
+      categoria: 'Infraestructura',
+      estado: false
+    }
+  ];
+
+  const [histories, setHistories] = useState<IHistory[]>(defaultHistories);
+  const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
-  const [open, setOpen] = useAtom(openAdminUserAtom);
-  const [openCreate, setOpenCreate] = useAtom(openAdminCreateUserAtom);
-  const [, setUser] = useAtom(userAdminEditAtom);
+  const [open, setOpen] = useAtom(openAdminHistoryAtom);
+  const [openCreate, setOpenCreate] = useAtom(openAdminCreateHistoryAtom);
+  const [, setHistory] = useAtom(historyAdminEditAtom);
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
-  const fetchUsers = async () => {
-    const isRefreshing = users.length > 0;
+  const fetchHistories = async () => {
+    const isRefreshing = histories.length > 0;
     isRefreshing ? setRefreshing(true) : setLoading(true);
     
     try {
-      const response = await apiService.get('usuarios');
-      setUsers(response.data);
+      // En un caso real, aquí iría la llamada a la API
+      // const response = await apiService.get('historias');
+      // setHistories(response.data);
+      
+      // Simulamos un pequeño retardo para parecer una llamada real
+      await new Promise(resolve => setTimeout(resolve, 500));
       setLastUpdated(format(new Date(), 'PPpp', { locale: es }));
-      toast.success(isRefreshing ? 'Lista de usuarios actualizada' : 'Usuarios cargados');
+      toast.success(isRefreshing ? 'Lista de historias actualizada' : 'Historias cargadas');
     } catch (error) {
-      toast.error('Error al cargar usuarios');
+      toast.error('Error al cargar historias');
       console.error(error);
     } finally {
       setLoading(false);
@@ -46,23 +109,27 @@ const GesUser = () => {
     }
   };
 
-  const handleSelectUser = (user: IUserGeneral) => {
-    setUser(user);
+  const handleSelectHistory = (history: IHistory) => {
+    setHistory(history);
     setOpen(true);
   };
 
-  const addUser = () => {
+  const addHistory = () => {
     setOpenCreate(true);
   };
 
-  const deleteUser = async (id: number) => {
+  const deleteHistory = async (id: number) => {
     setDeletingId(id);
     try {
-      await apiService.delete(`usuario/${id}`);
-      setUsers(users.filter(user => user.id !== id));
-      toast.success('Usuario eliminado correctamente');
+      // En un caso real, aquí iría la llamada a la API
+      // await apiService.delete(`historia/${id}`);
+      
+      // Simulamos la eliminación
+      await new Promise(resolve => setTimeout(resolve, 500));
+      setHistories(histories.filter(history => history.id !== id));
+      toast.success('Historia eliminada correctamente');
     } catch (error) {
-      toast.error('Error al eliminar usuario');
+      toast.error('Error al eliminar historia');
       console.error(error);
     } finally {
       setDeletingId(null);
@@ -70,7 +137,7 @@ const GesUser = () => {
   };
 
   useEffect(() => {
-    fetchUsers();
+    fetchHistories();
   }, []);
 
   interface Column<T> {
@@ -80,45 +147,46 @@ const GesUser = () => {
     render: (value: any, row: T) => JSX.Element;
   }
 
-  interface UserRow {
-    id: number;
-    nombre: string;
-    apellidoPaterno: string;
-    apellidoMaterno: string;
-    correo: string;
-    email_verified_at: string | null;
-    estado: boolean;
-    roles: string[];
-  }
-
-  const columns: Column<UserRow>[] = [
+  const columns: Column<IHistory>[] = [
     { 
-      key: 'nombre', 
-      header: 'Nombre',
-      render: (_, row) => (
+      key: 'titulo', 
+      header: 'Título',
+      render: (titulo: string, row) => (
         <div className="font-medium">
-          {row.nombre} {row.apellidoPaterno} {row.apellidoMaterno}
+          {titulo}
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 line-clamp-1">
+            {row.descripcion}
+          </p>
         </div>
       )
     },
     { 
-      key: 'correo', 
-      header: 'Correo',
-      render: (email: string) => (
-        <a 
-          href={`mailto:${email}`} 
-          className="text-blue-600 dark:text-blue-400 hover:underline"
-        >
-          {email}
-        </a>
+      key: 'fechas', 
+      header: 'Fechas',
+      render: (_, row) => (
+        <div className="text-sm">
+          <div>Inicio: {format(new Date(row.fechaInicio), 'PP', { locale: es })}</div>
+          {row.fechaFin && (
+            <div>Fin: {format(new Date(row.fechaFin), 'PP', { locale: es })}</div>
+          )}
+        </div>
       )
     },
     { 
-      key: 'email_verified_at', 
-      header: 'Verificado',
-      render: (value: string | null) => (
-        <Badge variant={value ? 'default' : 'destructive'}>
-          {value ? 'Verificado' : 'No verificado'}
+      key: 'ubicacion', 
+      header: 'Ubicación',
+      render: (ubicacion: string) => (
+        <Badge variant="outline" className="text-xs">
+          {ubicacion}
+        </Badge>
+      )
+    },
+    { 
+      key: 'categoria', 
+      header: 'Categoría',
+      render: (categoria: string) => (
+        <Badge variant="secondary">
+          {categoria}
         </Badge>
       )
     },
@@ -131,19 +199,6 @@ const GesUser = () => {
         </Badge>
       )
     },
-    { 
-      key: 'roles', 
-      header: 'Roles',
-      render: (roles: string[]) => (
-        <div className="flex flex-wrap gap-1">
-          {roles.map(role => (
-            <Badge key={role} variant="outline" className="text-xs">
-              {role}
-            </Badge>
-          ))}
-        </div>
-      )
-    },
     {
       key: 'actions',
       header: 'Acciones',
@@ -153,7 +208,7 @@ const GesUser = () => {
           <Button 
             variant="outline" 
             size="sm" 
-            onClick={() => handleSelectUser(row as IUserGeneral)}
+            onClick={() => handleSelectHistory(row)}
             className="hover:bg-blue-50 dark:hover:bg-blue-900/30"
           >
             Editar
@@ -161,7 +216,7 @@ const GesUser = () => {
           <Button 
             variant="outline" 
             size="sm" 
-            onClick={() => deleteUser(row.id)}
+            onClick={() => deleteHistory(row.id)}
             disabled={deletingId === row.id}
             className="hover:bg-red-50 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400"
           >
@@ -181,10 +236,10 @@ const GesUser = () => {
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
             <div>
               <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100">
-                Gestión de Usuarios
+                Gestión de Historias
               </h2>
               <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-                Administra los usuarios del sistema
+                Administra las historias y eventos históricos
               </p>
             </div>
             
@@ -199,7 +254,7 @@ const GesUser = () => {
                 <Button 
                   variant="outline"
                   size="sm"
-                  onClick={fetchUsers}
+                  onClick={fetchHistories}
                   disabled={loading || refreshing}
                   className="gap-2"
                 >
@@ -213,41 +268,41 @@ const GesUser = () => {
                 
                 <Button 
                   size="sm"
-                  onClick={addUser}
+                  onClick={addHistory}
                   disabled={loading}
                   className="gap-2"
                 >
                   <PlusCircle className="h-4 w-4" />
-                  <span className="hidden sm:inline">Agregar Usuario</span>
+                  <span className="hidden sm:inline">Agregar Historia</span>
                   <span className="inline sm:hidden">Agregar</span>
                 </Button>
               </div>
             </div>
           </div>
 
-          {loading && !users.length ? (
+          {loading && !histories.length ? (
             <div className="flex flex-col items-center justify-center h-64 gap-3">
               <Loader2 className="h-8 w-8 animate-spin text-slate-400" />
               <p className="text-slate-500 dark:text-slate-400">
-                Cargando usuarios...
+                Cargando historias...
               </p>
             </div>
           ) : (
             <div className="border rounded-lg overflow-hidden border-slate-200 dark:border-slate-800">
               <DataTable 
                 columns={columns} 
-                data={users}
+                data={histories}
                 className="[&_th]:bg-slate-100 dark:[&_th]:bg-slate-800"
               />
             </div>
           )}
         </div>
         
-        {open && <DialogEdit onSuccess={fetchUsers} />}
-        {openCreate && <DialogAdd onSuccess={fetchUsers} />}
+        {open && <DialogEdit onSuccess={fetchHistories} />}
+        {openCreate && <DialogAdd onSuccess={fetchHistories} />}
       </div>
     </RoleLayout>
   );
 }
 
-export default GesUser;
+export default GesHistoria;

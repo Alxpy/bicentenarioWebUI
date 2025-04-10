@@ -32,7 +32,7 @@ export const DataTable = ({
   onRowClick,
 }: DataTableProps) => {
   return (
-    <div className={`rounded-md border border-slate-200 dark:border-slate-800 w-full overflow-auto ${className}`}>
+    <div className={`rounded-md border border-slate-300 dark:border-slate-800 w-full overflow-auto ${className}`}>
       <Table>
         {caption && <TableCaption className="text-slate-500 dark:text-slate-400">{caption}</TableCaption>}
         <TableHeader className="bg-slate-50 dark:bg-slate-800/50">

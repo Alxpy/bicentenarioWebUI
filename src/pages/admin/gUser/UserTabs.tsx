@@ -10,7 +10,6 @@ export const UserSettingsTabs = () => {
       icon: <UserIcon className="w-5 h-5" />,
       content: <RegisterForm
         type_register="edit"
-        // user={user} // Puedes pasar el usuario aquí si es necesario
       />,
       activeGradient: {
         from: "cyan-500/20",

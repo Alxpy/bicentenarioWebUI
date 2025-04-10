@@ -1,21 +1,20 @@
-import React from 'react'
 import { useAtom } from 'jotai'
 import {
     Dialog,
     DialogContent,
     DialogHeader,
     DialogTitle,
-    DialogDescription
   } from "@/components/ui/dialog"
-import { openAdminUserAtom, userAdminEditAtom } from '@/context/context'
+import { openAdminUserAtom } from '@/context/context'
 import {UserSettingsTabs} from './UserTabs'
-import { User } from 'lucide-react'
 
+interface UserSettingsProps {
+  onSuccess: () => void;
+}
 
-export const DialogEdit = () => {
+export const DialogEdit = ({onSuccess}:UserSettingsProps) => {
 
     const [open, setOpen] = useAtom(openAdminUserAtom)
-    const [user] = useAtom(userAdminEditAtom)
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>

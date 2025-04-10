@@ -22,25 +22,21 @@ export const NavAdm = () => {
       label: 'Dashboard'
     },
     [PrivateRoutesAdmin.INVENTORY]: {
-      icon: <Package className="w-4 h-4" />,
-      label: 'Inventario'
+      icon: <Users className="w-4 h-4" />,
+      label: 'Usuarios'
     },
     [PrivateRoutesAdmin.PRODUCTS]: {
-      icon: <ShoppingCart className="w-4 h-4" />,
-      label: 'Productos'
+      icon: <CreditCard className="w-4 h-4" />,
+      label: 'Eventos'
     },
     [PrivateRoutesAdmin.USERS]: {
       icon: <Users className="w-4 h-4" />,
-      label: 'Gestión de Usuarios'
+      label: 'Historia'
     },
     [PrivateRoutesAdmin.VENTAS]: {
       icon: <CreditCard className="w-4 h-4" />,
-      label: 'Reporte de Ventas'
+      label: 'Biblioteca'
     },
-    [PrivateRoutesAdmin.SETTINGS]: {
-      icon: <Settings className="w-4 h-4" />,
-      label: 'Configuración'
-    }
   };
 
   const adminLinks = Object.entries(routeConfig).map(([key, value]) => ({
