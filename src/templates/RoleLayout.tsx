@@ -10,24 +10,21 @@ import { useLocation } from 'react-router-dom';
 
 interface MainLayoutProps {
     children: ReactNode;
-    role?: string; // Añadir prop para el rol
+    role?: string; 
 }
 
 export const RoleLayout = ({ children, role = 'user' }: MainLayoutProps) => {
     const location = useLocation();
     
     return (
-        <BodyContainer className="flex flex-col min-h-screen bg-blue-50">
+        <BodyContainer >
+            <Navbar />
             <SidebarProvider>
-                <div className="flex flex-col h-screen">
-                    {/* Navbar en la parte superior */}
-                    <Navbar />
-                    
-                    <div className="flex flex-1 overflow-hidden">
-                        {/* Sidebar lateral */}
+                   
+                    <div className="flex flex-1 overflow-hidden bg-slate-100" >
+                        
                         <AppSidebar role={role} />
                         
-                        {/* Contenido principal con animación */}
                         <motion.main
                             key={location.pathname}
                             initial={{ opacity: 0, x: 20 }}
@@ -37,10 +34,12 @@ export const RoleLayout = ({ children, role = 'user' }: MainLayoutProps) => {
                             className="flex-1 overflow-y-auto p-4"
                         >
                             <SidebarTrigger className="md:hidden mb-4" />
+                            <div className="w-[100%]">
+                            
                             {children}
+                            </div>
                         </motion.main>
                     </div>
-                </div>
             </SidebarProvider>
 
             <Toaster />

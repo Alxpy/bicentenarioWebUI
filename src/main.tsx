@@ -6,9 +6,8 @@ import './index.css'
 import AppRoutes from './routes/Approutes.tsx';
 
 createRoot(document.getElementById('root')!).render(
-  <StrictMode>
+
     <Provider>
       <AppRoutes />
-    </Provider>
-  </StrictMode>,
+    </Provider>,
 )

@@ -110,7 +110,7 @@ export function AppSidebar({ role = 'user' }: AppSidebarProps) {
   const items = menuItems[role as keyof typeof menuItems] || menuItems.user;
   
   return (
-    <Sidebar className="hidden md:flex"> {/* Ocultar en mobile */}
+    <Sidebar className="hidden md:flex"> 
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel>
