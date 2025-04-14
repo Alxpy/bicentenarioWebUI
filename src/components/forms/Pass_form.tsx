@@ -1,11 +1,11 @@
 import * as Yup from 'yup'
 import { Label, Button } from '@/components/ui'
 import { toast } from 'sonner'
-import {fetchShortApi } from '@/service/apiservice'
 import { useNavigate } from 'react-router-dom'
 import { Form, Formik } from 'formik'
 import { Input } from './Input'
 import { BarLoader } from 'react-spinners'
+import { apiService } from '@/service/apiservice'
 interface SendCodeProps {
   email: string;
   setIsOpen: (isOpen: boolean) => void;
@@ -32,7 +32,7 @@ export const Pass_form = ({ email, setIsOpen }: SendCodeProps) => {
       onSubmit={(values, {
         setSubmitting, resetForm
       } ) => {
-        fetchShortApi(`password`, {
+        apiService.put(`password`, {
           "correo": email,
           "nueva_contrasena": values.password
         }).then(response => {

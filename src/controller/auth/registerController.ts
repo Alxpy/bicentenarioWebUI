@@ -8,7 +8,7 @@ class RegisterController {
   async register(user: iUser_Register) {
     console.log(user.apellidoMaterno);
     try {
-      const response: IApiResponse = await apiService.create("register", {
+      const response: IApiResponse = await apiService.post("register", {
         nombre: user.nombre,
         apellidoPaterno: user.apellidoPaterno,
         apellidoMaterno: user.apellidoMaterno,

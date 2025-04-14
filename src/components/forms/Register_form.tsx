@@ -2,17 +2,14 @@ import { useAtom } from 'jotai';
 import { emailAtom, userAdminEditAtom } from '@/context/context';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from "react";
-import { Button } from "../ui";
-import { Input } from "../ui";
-import { Label } from "../ui";
 import { FaRegEye } from "react-icons/fa";
 import { FaRegEyeSlash } from "react-icons/fa";
 import SelectGen from "./SelectGen";
 import registerController from "@/controller/auth/registerController";
 import { toast } from "sonner"
 import { saveEmail } from "@/storage/session";
-import { aw } from 'node_modules/framer-motion/dist/types.d-6pKw1mTI';
 import { apiService } from '@/service/apiservice';
+import { PublicRoutes } from '@/routes/routes';
 
 interface RegisterProps {
     type_register: string;
@@ -140,6 +137,7 @@ const RegisterForm = ({ type_register }: RegisterProps) => {
                     toast(message); 
                     setEmail(formData.correo);
                     saveEmail(formData.correo);
+                    navigate(`${PublicRoutes.VERIFY}`);
                 } else {
                     toast("Error al crear la cuenta");
                 }
@@ -155,7 +153,7 @@ const RegisterForm = ({ type_register }: RegisterProps) => {
                   pais: formData.pais,
                   ciudad: formData.ciudad,
                 }
-                await apiService.update(`usuario`,userToEdit?.id,editUser).then((response) => {
+                await apiService.put(`usuario`,userToEdit?.id,editUser).then((response) => {
                     console.log(response);  
                 });
                 toast.success("Usuario actualizado correctamente");

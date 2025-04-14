@@ -36,8 +36,8 @@ const Login_form = () => {
       const payload = {
         ...user_login
       };
-
-      await apiService.create("login", payload).then((response : IApiResponse) => {
+      console.log(payload);
+      await apiService.post("login", payload).then((response : IApiResponse) => {
         if (response.success) {
           saveLoginSession(response.data);
           window.location.href = "/";
