@@ -1,9 +1,9 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import * as React from "react";
-import { PublicRoutes, PrivateRoutes } from "@/routes/routes";
+import { PublicRoutes} from "@/routes/routes";
 import { cn } from "@/lib/utils";
 import { getUser } from "@/storage/session";
-import  NavUser from './NavUser'
+import NavUser from './NavUser'
 
 import {
   NavigationMenu,
@@ -16,43 +16,89 @@ import {
 
 const components: { title: string; href: string; description: string }[] = [
   {
-    title: "Alert Dialog",
+    title: "Batallas",
     href: "/docs/primitives/alert-dialog",
     description:
       "A modal dialog that interrupts the user with important content and expects a response.",
   },
   {
-    title: "Hover Card",
+    title: "Independencia",
     href: "/docs/primitives/hover-card",
     description: "For sighted users to preview content available behind a link.",
   },
   {
-    title: "Progress",
+    title: "Revoluciones",
     href: "/docs/primitives/progress",
     description:
       "Displays an indicator showing the completion progress of a task, typically displayed as a progress bar.",
   },
   {
-    title: "Scroll-area",
+    title: "Personajes",
+    href: "/docs/primitives/scroll-area",
+    description: "Visually or semantically separates content.",
+  },
+];
+
+const componentsBlb: { title: string; href: string; description: string }[] = [
+  {
+    title: "Articulos",
+    href: "/docs/primitives/alert-dialog",
+    description:
+      "A modal dialog that interrupts the user with important content and expects a response.",
+  },
+  {
+    title: "Tesis",
+    href: "/docs/primitives/hover-card",
+    description: "For sighted users to preview content available behind a link.",
+  },
+  {
+    title: "Memorias",
+    href: "/docs/primitives/progress",
+    description:
+      "Displays an indicator showing the completion progress of a task, typically displayed as a progress bar.",
+  },
+  {
+    title: "Cronicas",
     href: "/docs/primitives/scroll-area",
     description: "Visually or semantically separates content.",
   },
   {
-    title: "Tabs",
-    href: "/docs/primitives/tabs",
-    description:
-      "A set of layered sections of content—known as tab panels—that are displayed one at a time.",
+    title: "Censos",
+    href: "/docs/primitives/scroll-area",
+    description: "Visually or semantically separates content.",
   },
-  
+  {
+    title: "Ensayos",
+    href: "/docs/primitives/scroll-area",
+    description: "Visually or semantically separates content.",
+  },
 ];
 
+const componentsEvnt: { title: string; href: string; description: string }[] = [
+  {
+    title: "Gastronomia",
+    href: "/docs/primitives/alert-dialog",
+    description:
+      "A modal dialog that interrupts the user with important content and expects a response.",
+  },
+  {
+    title: "Deportivo",
+    href: "/docs/primitives/hover-card",
+    description: "For sighted users to preview content available behind a link.",
+  },
+  {
+    title: "Cultural",
+    href: "/docs/primitives/progress",
+    description:
+      "Displays an indicator showing the completion progress of a task, typically displayed as a progress bar.",
+  },
+];
 
 const Navbar = () => {
   const [isSticky, setIsSticky] = useState(false);
   const [isLogin, setIsLogin] = useState(false);
   const [user] = useState(getUser() || null);
-  const triggerRef = useRef<HTMLButtonElement>(null); // Referencia al botón que activa el menú
-
+  
   useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY > 0) {
@@ -87,18 +133,18 @@ const Navbar = () => {
       }}
     >
       {/* Sección izquierda */}
-      <NavigationMenu>       
+      <NavigationMenu>
         <NavigationMenuList className="flex">
-        <NavigationMenuItem>
+          <NavigationMenuItem>
             <NavigationMenuLink href={PublicRoutes.HOME} className="text-xl ">
               Inicio
             </NavigationMenuLink>
-          </NavigationMenuItem>   
+          </NavigationMenuItem>
           <NavigationMenuItem>
             <NavigationMenuTrigger className={isSticky ? "bg-slate-100 hover:bg-slate-800" : "bg-slate-500 hover:bg-slate-800"}>
-              Components
+              Historia
             </NavigationMenuTrigger>
-            <NavigationMenuContent  className="max-w-[90vw] overflow-auto">
+            <NavigationMenuContent className="max-w-[90vw] overflow-auto">
               <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
                 {components.map((component) => (
                   <ListItem key={component.title} title={component.title} href={component.href}>
@@ -108,6 +154,40 @@ const Navbar = () => {
               </ul>
             </NavigationMenuContent>
           </NavigationMenuItem>
+          <NavigationMenuItem>
+            <NavigationMenuTrigger className={isSticky ? "bg-slate-100 hover:bg-slate-800" : "bg-slate-500 hover:bg-slate-800"}>
+              Eventos
+            </NavigationMenuTrigger>
+            <NavigationMenuContent className="max-w-[90vw] overflow-auto">
+              <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
+                {componentsEvnt.map((component) => (
+                  <ListItem key={component.title} title={component.title} href={component.href}>
+                    {component.description}
+                  </ListItem>
+                ))}
+              </ul>
+            </NavigationMenuContent>
+          </NavigationMenuItem>
+          <NavigationMenuItem>
+            <NavigationMenuTrigger className={isSticky ? "bg-slate-100 hover:bg-slate-800" : "bg-slate-500 hover:bg-slate-800"}>
+              Biblioteca
+            </NavigationMenuTrigger>
+            <NavigationMenuContent className="max-w-[90vw] overflow-auto">
+              <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
+                {componentsBlb.map((component) => (
+                  <ListItem key={component.title} title={component.title} href={component.href}>
+                    {component.description}
+                  </ListItem>
+                ))}
+              </ul>
+            </NavigationMenuContent>
+          </NavigationMenuItem>
+          <NavigationMenuLink href={PublicRoutes.HOME} className="text-xl ">
+            Cultura
+          </NavigationMenuLink>
+          <NavigationMenuLink href={PublicRoutes.HOME} className="text-xl ">
+            Presidentes
+          </NavigationMenuLink>
         </NavigationMenuList>
       </NavigationMenu>
 
@@ -116,8 +196,8 @@ const Navbar = () => {
         <NavigationMenuList className="flex mr-2">
           {isLogin ? (
             <NavigationMenuItem
-           >
-             <NavUser/>
+            >
+              <NavUser />
             </NavigationMenuItem>
           ) : (
             <NavigationMenuItem>

@@ -27,7 +27,7 @@ const departamentos = [
 export const Eventos = () => {
   return (
     <div className="flex flex-col items-center justify-center w-full h-full text-white text-lg p-4">
-      <h2 className="text-2xl font-bold mb-6 text-center">Turismo en Bolivia</h2>
+      <h2 className="text-2xl font-bold mb-6 text-center">Historia de Bolivia</h2>
 
       {/* Grid de tarjetas */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6 w-full justify-center">

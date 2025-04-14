@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { getUser, removeLoginSession } from "@/storage/session";
 import { useAtom } from 'jotai';
 import { openUserSettingsAtom } from '@/context/context';
