@@ -6,6 +6,7 @@ export const PublicRoutes = {
     ABOUT : '/about',
     SHOP : '/shop',
     REGISTER : '/register',
+    HISTORIA : '/historia',
 };
 
 export const PrivateRoutes = {
