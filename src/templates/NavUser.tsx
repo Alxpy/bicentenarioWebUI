@@ -20,7 +20,7 @@ const NavUser = () => {
     // Verificar roles al montar el componente
     useEffect(() => {
         const user = getUser();
-        setIsAdmin(user?.roles?.includes('Administrador') || false);
+        setIsAdmin(user?.roles?.includes('admin') || false);
     }, []);
 
     const menuItems = [

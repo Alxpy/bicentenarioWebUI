@@ -69,6 +69,10 @@ class ApiService {
     return this.instance.get(endpoint);
   }
 
+  public async getWithParams<T>(endpoint: string, params: any): Promise<ApiResponse<T>> {
+    return this.instance.get(endpoint, { params });
+  }
+
   public async post<T>(endpoint: string, data: any): Promise<ApiResponse<T>> {
     return this.instance.post(endpoint, data);
   }

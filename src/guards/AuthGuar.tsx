@@ -16,10 +16,11 @@ export const AuthGuard = () => {
       }
 
       try {
-        const response = await apiService.get(`validate`, {        
-            token: token,
-            required_roles: 'Usuario'          
+        const response = await apiService.getWithParams('validate', {
+          token: token,
+          required_roles: ['admin'],
         });
+        
         console.log(response);
         setIsValid(response.valid);
       } catch (error) {

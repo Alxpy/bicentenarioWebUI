@@ -1,51 +1,43 @@
 import { DataTable } from '@/components/dataTable/DataTable';
 import { Button } from '@/components/ui/button';
 import { RoleLayout } from '@/templates/RoleLayout';
-import { RefreshCw, PlusCircle, Loader2 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { RefreshCw, Loader2 } from 'lucide-react';
+import {  useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
-import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { DialogCrear } from './DialogCrear';
+import {DialogEditar} from './DialogEditar';
+import { ILibro } from '../interface';
+import { apiService } from '@/service/apiservice';
+import { useAtom } from 'jotai';
+import { libroAdminEditAtom,} from '@/context/context';
+
 
 const GesBiblioteca = () => {
-  const [libros, setLibros] = useState([
-    {
-      id: 1,
-      titulo: 'Cien Años de Soledad',
-      autor: 'Gabriel García Márquez',
-      imagen: 'https://covers.openlibrary.org/b/id/8221256-L.jpg',
-      fechaPublicacion: '1967-05-30',
-      edicion: 'Primera'
-    },
-    {
-      id: 2,
-      titulo: '1984',
-      autor: 'George Orwell',
-      imagen: 'https://covers.openlibrary.org/b/id/1535410-L.jpg',
-      fechaPublicacion: '1949-06-08',
-      edicion: 'Segunda'
-    }
-  ]);
-  const [loading, setLoading] = useState(false);
+  const [libros, setLibros] = useState<ILibro[]>([]);
+  const [loading, setLoading ] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-  const [lastUpdated, setLastUpdated] = useState<string | null>(null);
+  const [lastUpdated,] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
+
+  const [,setLibroAtm] = useAtom(libroAdminEditAtom);
+  const [openEdit,setOpenEdit] = useState(false);
+
 
   const fetchLibros = async () => {
     setRefreshing(true);
-    try {
-      // Aquí podrías hacer una llamada a una API real
-      setTimeout(() => {
-        setLastUpdated(format(new Date(), 'PPpp', { locale: es }));
+    await  apiService.get('bibliotecas').then((response: any) => {
+      console.log('Libros:', response.data);
+      setLibros(response.data);      
         toast.success('Lista de libros actualizada');
-        setRefreshing(false);
-      }, 1000);
-    } catch (error) {
+    }).catch((error) => {
       toast.error('Error al cargar libros');
-      console.error(error);
+      console.error('Error fetching libros:', error);
       setRefreshing(false);
-    }
+    }).finally(() => {
+      setLoading(false);
+      setRefreshing(false);
+    })
   };
 
   const deleteLibro = (id: number) => {
@@ -80,8 +72,7 @@ const GesBiblioteca = () => {
     {
       key: 'fechaPublicacion',
       header: 'Fecha de Publicación',
-      render: (fecha: string) =>
-        format(new Date(fecha), 'PPP', { locale: es })
+      render: (_: any, row: any) =>  row.fecha_publicacion
     },
     {
       key: 'edicion',
@@ -94,7 +85,12 @@ const GesBiblioteca = () => {
       className: 'text-right w-40',
       render: (_: any, row: any) => (
         <div className="flex justify-end gap-2">
-          <Button variant="outline" size="sm" className="hover:bg-blue-50">
+          <Button variant="outline" size="sm" className="hover:bg-blue-50"
+            onClick={() => {
+              setLibroAtm(row);
+              setOpenEdit(true);
+            }}
+          >
             Editar
           </Button>
           <Button
@@ -134,7 +130,7 @@ const GesBiblioteca = () => {
               )}
               <div className="flex gap-2">
                 <Button
-                  variant="outline"
+                  variant="default"
                   size="sm"
                   onClick={fetchLibros}
                   disabled={refreshing}
@@ -147,10 +143,8 @@ const GesBiblioteca = () => {
                   )}
                   <span className="hidden sm:inline">Refrescar</span>
                 </Button>
-                <Button size="sm" className="gap-2">
-                  <PlusCircle className="h-4 w-4" />
-                  <span className="hidden sm:inline">Agregar Libro</span>
-                </Button>
+                
+                <DialogCrear/>
               </div>
             </div>
           </div>
@@ -173,6 +167,12 @@ const GesBiblioteca = () => {
           )}
         </div>
       </div>
+      {openEdit && (
+        <DialogEditar
+          open={openEdit}
+          onOpen={setOpenEdit}
+        />
+      )}
     </RoleLayout>
   );
 };

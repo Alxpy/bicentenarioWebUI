@@ -15,11 +15,13 @@ export const AdminGuard = () => {
         return;
       }
 
-      try {
-        const response = await apiService.get(`validate`, {
-            token: token,
-          required_roles:'Administrador' 
+      try { 
+        const response = await apiService.getWithParams('validate', {
+          token: token,
+          required_roles: ['admin'],
         });
+        
+        
         setIsAuthorized(response.valid);
       } catch (error) {
         console.error("Error validating admin:", error);

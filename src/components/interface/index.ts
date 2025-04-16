@@ -4,3 +4,4 @@ export * from './iuser';
 export * from './iProducto';
 export * from './iHistoria';
 export * from './IUbicacion';
+export * from './iBiblioteca'
