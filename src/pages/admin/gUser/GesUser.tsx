@@ -7,12 +7,14 @@ import { IUserGeneral } from '@/components/interface';
 import { useEffect, useState } from 'react';
 import { DialogEdit } from './DialogEdit';
 import { useAtom } from 'jotai';
-import { 
-  openAdminUserAtom, 
+import {
+  openAdminUserAtom,
   openAdminCreateUserAtom,
-  userAdminEditAtom 
+  userAdminEditAtom,
+  openAdminRolesAtom
 } from '@/context/context';
 import { DialogAdd } from './DialogAdd';
+import { RolesForm } from './RolesForm';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { toast } from 'sonner';
@@ -25,17 +27,19 @@ const GesUser = () => {
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
   const [open, setOpen] = useAtom(openAdminUserAtom);
   const [openCreate, setOpenCreate] = useAtom(openAdminCreateUserAtom);
-  const [, setUser] = useAtom(userAdminEditAtom);
+  const [openRoles, setOpenRoles] = useAtom(openAdminRolesAtom);
+  const [user, setUser] = useAtom(userAdminEditAtom);
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
   const fetchUsers = async () => {
     const isRefreshing = users.length > 0;
     isRefreshing ? setRefreshing(true) : setLoading(true);
-    
+
     try {
-      const response = await apiService.get('usuarios');
+      const response = await apiService.get('user');
       // Asegurarnos de que siempre sea un array, incluso si la respuesta es null/undefined
-      setUsers(response.data || []);
+      const data: any = response.data || [];
+      setUsers(data);
       setLastUpdated(format(new Date(), 'PPpp', { locale: es }));
       toast.success(isRefreshing ? 'Lista de usuarios actualizada' : 'Usuarios cargados');
     } catch (error) {
@@ -60,7 +64,7 @@ const GesUser = () => {
   const deleteUser = async (id: number) => {
     setDeletingId(id);
     try {
-      await apiService.delete(`usuario/${id}`);
+      await apiService.delete(`user/${id}`);
       setUsers(users.filter(user => user.id !== id));
       toast.success('Usuario eliminado correctamente');
     } catch (error) {
@@ -94,8 +98,8 @@ const GesUser = () => {
   }
 
   const columns: Column<UserRow>[] = [
-    { 
-      key: 'nombre', 
+    {
+      key: 'nombre',
       header: 'Nombre',
       render: (_, row) => (
         <div className="font-medium">
@@ -103,20 +107,20 @@ const GesUser = () => {
         </div>
       )
     },
-    { 
-      key: 'correo', 
+    {
+      key: 'correo',
       header: 'Correo',
       render: (email: string) => (
-        <a 
-          href={`mailto:${email}`} 
+        <a
+          href={`mailto:${email}`}
           className="text-blue-600 dark:text-blue-400 hover:underline"
         >
           {email}
         </a>
       )
     },
-    { 
-      key: 'email_verified_at', 
+    {
+      key: 'email_verified_at',
       header: 'Verificado',
       render: (value: string | null) => (
         <Badge variant={value ? 'default' : 'destructive'}>
@@ -125,7 +129,7 @@ const GesUser = () => {
       )
     },
     {
-      key: 'estado', 
+      key: 'estado',
       header: 'Estado',
       render: (value: boolean) => (
         <Badge variant={value ? 'default' : 'secondary'}>
@@ -133,8 +137,8 @@ const GesUser = () => {
         </Badge>
       )
     },
-    { 
-      key: 'roles', 
+    {
+      key: 'roles',
       header: 'Roles',
       render: (roles: string[]) => (
         <div className="flex flex-wrap gap-1">
@@ -143,6 +147,7 @@ const GesUser = () => {
               {role}
             </Badge>
           ))}
+
         </div>
       )
     },
@@ -152,17 +157,22 @@ const GesUser = () => {
       className: 'text-right w-40',
       render: (_, row) => (
         <div className="flex justify-end gap-2">
-          <Button 
-            variant="outline" 
-            size="sm" 
+          <Button
+            variant="outline"
+            size="sm"
             onClick={() => handleSelectUser(row as IUserGeneral)}
             className="hover:bg-blue-50 dark:hover:bg-blue-900/30"
           >
             Editar
           </Button>
-          <Button 
-            variant="outline" 
-            size="sm" 
+          <Button
+            onClick={() => { setUser(row as IUserGeneral); setOpenRoles(true) }}
+          >
+            Agregar Roles
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
             onClick={() => deleteUser(row.id)}
             disabled={deletingId === row.id}
             className="hover:bg-red-50 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400"
@@ -189,16 +199,16 @@ const GesUser = () => {
                 Administra los usuarios del sistema
               </p>
             </div>
-            
+
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full sm:w-auto">
               {lastUpdated && (
                 <div className="text-xs text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-full">
                   Actualizado: {lastUpdated}
                 </div>
               )}
-              
+
               <div className="flex gap-2 w-full sm:w-auto text-slate-800">
-                <Button 
+                <Button
                   variant="outline"
                   size="sm"
                   onClick={fetchUsers}
@@ -212,8 +222,8 @@ const GesUser = () => {
                   )}
                   <span className=" hidden sm:inline">Refrescar</span>
                 </Button>
-                
-                <Button 
+
+                <Button
                   size="sm"
                   onClick={addUser}
                   disabled={loading}
@@ -236,17 +246,18 @@ const GesUser = () => {
             </div>
           ) : (
             <div className="border rounded-lg overflow-hidden border-slate-200 dark:border-slate-800">
-              <DataTable 
-                columns={columns} 
+              <DataTable
+                columns={columns}
                 data={users}
                 className="[&_th]:bg-slate-100 dark:[&_th]:bg-slate-800"
               />
             </div>
           )}
         </div>
-        
+
         {open && <DialogEdit onSuccess={fetchUsers} />}
         {openCreate && <DialogAdd onSuccess={fetchUsers} />}
+        {openRoles && <RolesForm id_usuario={user?.id || 0} open={openRoles} onClose={() => setOpenRoles(false)} />}
       </div>
     </RoleLayout>
   );

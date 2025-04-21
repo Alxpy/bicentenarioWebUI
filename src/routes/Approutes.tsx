@@ -17,9 +17,12 @@ const AppRoutes = () => {
         <Route path={PublicRoutes.AUTH} element={<Auth />} />
         <Route path={PublicRoutes.VERIFY} element={<Verify />} />
         <Route path={PublicRoutes.HISTORIA} element={<Historia />} />
-        <Route element={<AuthGuard />}>
-          <Route element={<AdminGuard />}>
-            <Route path={`${PrivateRoutesAdmin.BASE}/*`} element={<Admin />}>
+
+        <Route path={`${PrivateRoutesAdmin.BASE}/*`} element={<Admin />}>
+
+          <Route element={<AuthGuard />}>
+            <Route element={<AdminGuard />}>
+
             </Route>
           </Route>
         </Route>

@@ -46,6 +46,11 @@ const menuItems = {
       icon: Package,
     },
     {
+      title: "Presidentes",
+      url: `${PrivateRoutesAdmin.PRESIDENTES}`,
+      icon: FileText,
+    },
+    {
       title: "Comentarios",
       url: `${PrivateRoutesAdmin.COMENTARIOS}`,
       icon: FileText,

@@ -16,3 +16,5 @@ export const  historyAdminEditAtom  = atom<IHistory>();
 export const openAdminBibliotecaAtom = atom<boolean>(false);
 export const openAdminCreateBibliotecaAtom = atom<boolean>(false);
 export const libroAdminEditAtom = atom<ILibro>();
+
+export const openAdminRolesAtom = atom<boolean>(false);
