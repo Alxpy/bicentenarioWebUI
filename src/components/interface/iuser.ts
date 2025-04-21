@@ -32,3 +32,21 @@ export interface iUser{
     nombre: string;
     correo: string;
 }
+
+
+export interface IUserGeneral{
+    id: number;
+    nombre: string;
+    apellidoPaterno: string;
+    apellidoMaterno: string;
+    correo: string;
+    genero: string;
+    telefono: string;
+    pais: string;
+    ciudad: string;
+    estado: boolean;
+    roles: string[];
+    email_verified_at: string | null;
+    cantIntentos: number;
+    ultimoIntentoFallido: string | null;
+}

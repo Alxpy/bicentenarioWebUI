@@ -4,3 +4,9 @@ export interface mesageResponse {
     token: string;
   }
 
+  export interface IApiResponse {
+    success: boolean;
+    message: string;
+    status: number;
+    data: any;
+}

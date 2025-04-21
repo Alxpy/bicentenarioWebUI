@@ -3,9 +3,6 @@ import colors from './colors';
 import text_fonts from './text_fonts';
 
 export const BodyContainer = styled.div`
-    display: flex;
-    height: 100vh;
-    width: 100vw;
     
     color: ${colors.crema};
     

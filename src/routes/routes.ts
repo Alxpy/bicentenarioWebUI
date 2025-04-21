@@ -6,6 +6,7 @@ export const PublicRoutes = {
     ABOUT : '/about',
     SHOP : '/shop',
     REGISTER : '/register',
+    HISTORIA : '/historia',
 };
 
 export const PrivateRoutes = {
@@ -19,4 +20,12 @@ export const PrivateRoutesAdmin = {
     USERS : 'users',
     VENTAS : 'ventas',
     SETTINGS : 'settings',
+    NEWS : 'news',
+    EVENTS : 'events',
+    HISTORY : 'history',
+    BIBLIOTHECA : 'biblioteca',
+    PRESIDENTES : 'presidentes',
+    COMENTARIOS : 'comentarios',
+    ESTADISTICAS : 'estadisticas',
 };
+
