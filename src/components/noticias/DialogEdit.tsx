@@ -6,24 +6,24 @@ import {
     DialogTitle,
     DialogDescription
 } from "@/components/ui/dialog"
-import { iPresidente } from '../interface'
-import { PresidenteForm } from './FormPresidente'
+import { iNews } from '../interface'
+import { NoticiaForm } from './NoticiaForm'
 interface DialoEditProps {
     open: boolean
     onClose: () => void
-    presidente: iPresidente
+    noticia: iNews
 }
 
-export const DialogEdit = ({ open, onClose, presidente }: DialoEditProps) => {
+export const DialogEdit = ({ open, onClose, noticia }: DialoEditProps) => {
     return (
         <Dialog open={open} onOpenChange={onClose}>
             <DialogContent className="max-w-4xl bg-gray-800/90 backdrop-blur-lg border border-white/20 rounded-xl overflow-hidden text-white">
                 <DialogHeader>
-                    <DialogTitle>Editar los datos de Presidente</DialogTitle>
+                    <DialogTitle>Editar los datos de Notica</DialogTitle>
                     <DialogDescription>Editar.</DialogDescription>
                 </DialogHeader>
-                <PresidenteForm
-                    initialData={presidente}
+                <NoticiaForm
+                    initialData={noticia}
                 />
             </DialogContent>
         </Dialog>

@@ -7,6 +7,8 @@ import GetUser from './gUser/GesUser'
 import { GesHistoria } from '@/components/historia/GesHistoria'
 import  GesBiblioteca  from '@/components/biblioteca/GesBiblioteca'
 import { GesPresidente } from '@/components/presidente/GesPresidente'
+import { Noticias } from '@/components/noticias/Noticias'
+
 export const Admin = () => {
 
   return (
@@ -20,7 +22,7 @@ export const Admin = () => {
             <Route path={PrivateRoutesAdmin.HISTORY} element={<GesHistoria />} />
             <Route path={PrivateRoutesAdmin.BIBLIOTHECA} element={<GesBiblioteca />} />
             <Route path={PrivateRoutesAdmin.PRESIDENTES} element={<GesPresidente/>}/>
-            
+            <Route path={PrivateRoutesAdmin.NEWS} element={<Noticias/>}/>
     </RoutesNotFound>
   )
 }

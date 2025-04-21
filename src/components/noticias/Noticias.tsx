@@ -1,48 +1,42 @@
-import React from 'react'
+import React,{useState, useEffect} from 'react'
 import { DataTable } from '@/components/dataTable/DataTable';
 import { Button } from '@/components/ui/button';
 import { RoleLayout } from '@/templates/RoleLayout';
 import { RefreshCw } from 'lucide-react';
 import { apiService } from '@/service/apiservice';
+import { DialogEdit } from './DialogEdit';
+import { DialogAdd } from './DialogAdd';
+import { iNews } from '../interface';
+
 export const Noticias = () => {
-  const columns = [
-    { key: 'id', header: 'ID' },
+  interface Column<T> {
+    key: keyof T | string;
+    header: string;
+    className?: string;
+    render: (value: any, row: T) => JSX.Element;
+  }
+
+  const columns: Column<iNews>[] = [
     { 
-      key: 'nombre', 
-      header: 'Nombre',
-      render: (_, row) => `${row.nombre} ${row.apellidoPaterno} ${row.apellidoMaterno}`
-    },
-    { key: 'correo', header: 'Correo' },
-    { 
-      key: 'email_verified_at', 
-      header: 'Verificado',
+      key: 'titulo', 
+      header: 'Título',
       render: (value) => (
-        <span className={`px-2 py-1 rounded-full text-xs ${
-          value 
-            ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' 
-            : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-        }`}>
-          {value ? 'Sí' : 'No'}
-        </span>
+        <span className="font-semibold text-gray-800 dark:text-gray-200">{value}</span>
       )
     },
-    {
-      key: 'estado', 
-      header: 'Estado',
+    { 
+      key: 'nombre_categoria', 
+      header: 'Categoría',
       render: (value) => (
-        <span className={`px-2 py-1 rounded-full text-xs ${
-          value 
-            ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' 
-            : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-        }`}>
-          {value ? 'Activo' : 'Inactivo'}
+        <span className="px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+          {value}
         </span>
       )
     },
     { 
-      key: 'roles', 
-      header: 'Roles',
-      render: (roles) => roles.join(', ')
+      key: 'fecha_publicacion', 
+      header: 'Fecha Publicación',
+      render: (value) => <span>{new Date(value).toLocaleDateString()}</span>
     },
     {
       key: 'actions',
@@ -51,10 +45,10 @@ export const Noticias = () => {
       render: (_, row) => (
         <div className="flex justify-end space-x-2">
           <Button variant="outline" size="sm" className="text-slate-700 dark:text-slate-300" 
-            onClick={() => handleSelectUser(row)}>
+            onClick={() => handleSelectNews(row)}>
             Editar
           </Button>
-          <Button onClick={() => delte(row.id)} variant="outline" size="sm" className="text-red-600 dark:text-red-400">
+          <Button onClick={() => deleteNews(row.id)} variant="outline" size="sm" className="text-red-600 dark:text-red-400">
             Eliminar
           </Button>
         </div>
@@ -62,12 +56,54 @@ export const Noticias = () => {
     }
   ];
 
+  // Sample data structure for news
+  const [news	, setNews] = useState<iNews[]>([]);
+
+  const [loading, setLoading] = React.useState(false);
+  const [lastUpdated, setLastUpdated] = React.useState<string | null>(null);
+  const [open, setOpen] = React.useState(false);
+  const [openCreate, setOpenCreate] = React.useState(false);
+  const [noticiaSelected, setNoticiaSelected] = React.useState<iNews>();
+
+  const fetchNews = async () => {
+    setLoading(true);
+    try {
+       const response : any = await apiService.get('news');
+       setNews(response.data);
+      setLastUpdated(new Date().toLocaleTimeString());
+    } catch (error) {
+      console.error('Error fetching news:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSelectNews = (newsItem : iNews) => {
+    // Handle news selection for editing
+    setOpen(true);
+  };
+
+  const deleteNews = async (id:number) => {
+    if (window.confirm('¿Estás seguro de eliminar esta noticia?')) {
+      try {
+        // await apiService.delete(`/noticias/${id}`);
+        // fetchNews(); // Refresh the list
+      } catch (error) {
+        console.error('Error deleting news:', error);
+      }
+    }
+  };
+
+  const addNews = () => {
+    setOpenCreate(true);
+  };
+
   return (
     <RoleLayout role="admin">
       <div className="w-full px-4">
         <div className="dark:bg-slate-900 rounded-lg shadow p-6">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold">Lista de Usuarios</h2>
+            <h2 className="text-xl font-semibold">Gestión de Noticias</h2>
             <div className="flex items-center space-x-4">
               {lastUpdated && (
                 <span className="text-sm text-gray-500 dark:text-gray-400">
@@ -76,7 +112,7 @@ export const Noticias = () => {
               )}
               <Button 
                 size="sm" 
-                onClick={fetchUsers}
+                onClick={fetchNews}
                 disabled={loading}
               >
                 <RefreshCw className={`mr-2 h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
@@ -84,32 +120,29 @@ export const Noticias = () => {
               </Button>
               <Button 
                 size="sm" 
-                onClick={addUser}
+                onClick={addNews}
                 disabled={loading}
               >
-                Agregar Usuario
+                Agregar Noticia
               </Button>
             </div>
           </div>
 
-          {loading && !users.length ? (
+          {loading && !news.length ? (
             <div className="flex justify-center items-center h-64">
-              <p>Cargando usuarios...</p>
+              <p>Cargando noticias...</p>
             </div>
           ) : (
             <DataTable 
               columns={columns} 
-              data={users} 
-              onRowClick={(row) => console.log('Usuario seleccionado:', row)}
+              data={news} 
+              onRowClick={(row) => console.log('Noticia seleccionada:', row)}
             />
           )}
         </div>
-        {open && <DialogEdit />}
-        {openCreate && <DialogAdd />}
-        
+        {open && <DialogEdit open={open} onClose={()=>setOpen(false)} noticia={noticiaSelected}  />}
+        {openCreate && <DialogAdd open={openCreate} onClose={() => setOpenCreate(false)}  />}
       </div>
-      
     </RoleLayout>
-    
   );
 }

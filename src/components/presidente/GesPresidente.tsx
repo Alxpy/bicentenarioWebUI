@@ -24,7 +24,7 @@ export const GesPresidente = () => {
     const [openAdd, setOpenAdd] = useState(false);
     const [openEdit, setOpenEdit] = useState(false);
 
-    const [presidenteToEdit, setPresidenteToEdit] = useState<iPresidente | null>(null);
+    const [presidenteToEdit, setPresidenteToEdit] = useState<iPresidente>();
 
     const fetchPresidentes = async () => {
         const isRefreshing = presidentes.length > 0;
@@ -107,6 +107,18 @@ export const GesPresidente = () => {
               <Badge variant="outline" className="text-xs">
                 Fin: {row.fin_periodo}
               </Badge>
+            </div>
+          )
+        },{
+          key: 'imagen',
+          header: 'Imagen',
+          render: (_, row) => (
+            <div className="flex items-center gap-2">
+              <img
+                src={row.imagen}
+                alt={row.nombre}
+                className="w-10 h-10 rounded-full object-cover"
+              />
             </div>
           )
         },

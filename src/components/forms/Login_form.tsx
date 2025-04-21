@@ -1,8 +1,5 @@
 import { useState } from 'react';
 import { iUser_Login } from '@/components/interface/iuser';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { apiService } from '@/service/apiservice';
 import { FaRegEye, FaRegEyeSlash } from "react-icons/fa";
 import { IApiResponse, mesageResponse } from '@/components/interface/iresponse';
@@ -37,7 +34,7 @@ const Login_form = () => {
         ...user_login
       };
       console.log(payload);
-      await apiService.post("login", payload).then((response : IApiResponse) => {
+      await apiService.post("auth/login", payload).then((response : IApiResponse) => {
         if (response.success) {
           saveLoginSession(response.data);
           window.location.href = "/";

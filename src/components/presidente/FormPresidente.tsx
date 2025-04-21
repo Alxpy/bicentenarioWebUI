@@ -87,11 +87,13 @@ export const PresidenteForm = ({ initialData }: PresidenteFormProps) => {
       if (file) {
         const imageFormData = new FormData();
         imageFormData.append('file', file);
-        const response = await apiService.postFiles('files/upload?max_file_size=10485760',imageFormData);
-        imageUrl = response.url;
+        const response :any = await apiService.postFiles('files/upload?max_file_size=10485760',imageFormData);
+        imageUrl = response.data.file_url;
+        console.log('Imagen subida:', imageUrl);
       }
 
       const payload = { ...formData, imagen: imageUrl };
+      console.log('Datos del formulario:', payload);
       const method = initialData ? 'put' : 'post';
       const url = initialData ? `president/${initialData.id}` : 'president';
 
@@ -146,7 +148,7 @@ export const PresidenteForm = ({ initialData }: PresidenteFormProps) => {
                   <SelectContent>
                     {users.map((user) => (
                       <SelectItem key={user.id} value={user.id.toString()}>
-                        {`${user.nombre} ${user.apellido}`}
+                        {`${user.nombre} ${user.apellidoPaterno}`}
                       </SelectItem>
                     ))}
                   </SelectContent>
