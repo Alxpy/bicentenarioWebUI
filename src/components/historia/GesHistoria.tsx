@@ -16,69 +16,12 @@ import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
-
-interface IHistory {
-  id: number;
-  titulo: string;
-  descripcion: string;
-  fechaInicio: string;
-  fechaFin: string;
-  imagen: string;
-  ubicacion: string;
-  categoria: string;
-  estado: boolean;
-}
+import {IHistory} from '@/components/interface'
+import { MapaInteractivo } from '../ubicacion/MapaInteractivo';
 
 export const GesHistoria = () => {
-  // Datos por defecto
-  const defaultHistories: IHistory[] = [
-    {
-      id: 1,
-      titulo: 'Fundación de la ciudad',
-      descripcion: 'Evento histórico que marcó el inicio de nuestra ciudad',
-      fechaInicio: '1541-02-12',
-      fechaFin: '1541-02-12',
-      imagen: '/images/fundacion.jpg',
-      ubicacion: 'Plaza Principal',
-      categoria: 'Fundacional',
-      estado: true
-    },
-    {
-      id: 2,
-      titulo: 'Terremoto del siglo',
-      descripcion: 'El terremoto más devastador registrado en la historia local',
-      fechaInicio: '1647-05-13',
-      fechaFin: '1647-05-13',
-      imagen: '/images/terremoto.jpg',
-      ubicacion: 'Región completa',
-      categoria: 'Desastre natural',
-      estado: true
-    },
-    {
-      id: 3,
-      titulo: 'Independencia nacional',
-      descripcion: 'Celebración de la independencia del país',
-      fechaInicio: '1810-09-18',
-      fechaFin: '1810-09-18',
-      imagen: '/images/independencia.jpg',
-      ubicacion: 'Palacio de Gobierno',
-      categoria: 'Política',
-      estado: true
-    },
-    {
-      id: 4,
-      titulo: 'Construcción del ferrocarril',
-      descripcion: 'Llegada del ferrocarril que conectó la ciudad con el resto del país',
-      fechaInicio: '1850-01-01',
-      fechaFin: '1860-12-31',
-      imagen: '/images/ferrocarril.jpg',
-      ubicacion: 'Estación Central',
-      categoria: 'Infraestructura',
-      estado: false
-    }
-  ];
-
-  const [histories, setHistories] = useState<IHistory[]>(defaultHistories);
+  
+  const [histories, setHistories] = useState<IHistory[]>([]);
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
@@ -91,22 +34,18 @@ export const GesHistoria = () => {
     const isRefreshing = histories.length > 0;
     isRefreshing ? setRefreshing(true) : setLoading(true);
     
-    try {
-      // En un caso real, aquí iría la llamada a la API
-      // const response = await apiService.get('historias');
-      // setHistories(response.data);
-      
-      // Simulamos un pequeño retardo para parecer una llamada real
-      await new Promise(resolve => setTimeout(resolve, 500));
-      setLastUpdated(format(new Date(), 'PPpp', { locale: es }));
+      await apiService.get('history').then((response)=>{
+        const data  : any= response.data;
+        setHistories(data)
+        setLastUpdated(format(new Date(), 'PPpp', { locale: es }));
       toast.success(isRefreshing ? 'Lista de historias actualizada' : 'Historias cargadas');
-    } catch (error) {
-      toast.error('Error al cargar historias');
-      console.error(error);
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
+      }). catch( (error) => {
+        toast.error('Error al cargar historias');
+        console.error(error);
+      }).finally(() => {
+        setLoading(false);
+        setRefreshing(false);
+      })
   };
 
   const handleSelectHistory = (history: IHistory) => {
@@ -165,9 +104,9 @@ export const GesHistoria = () => {
       header: 'Fechas',
       render: (_, row) => (
         <div className="text-sm">
-          <div>Inicio: {format(new Date(row.fechaInicio), 'PP', { locale: es })}</div>
-          {row.fechaFin && (
-            <div>Fin: {format(new Date(row.fechaFin), 'PP', { locale: es })}</div>
+          <div>Inicio: {format(new Date(row.fecha_inicio), 'PP', { locale: es })}</div>
+          {row.fecha_fin && (
+            <div>Fin: {format(new Date(row.fecha_fin), 'PP', { locale: es })}</div>
           )}
         </div>
       )
@@ -175,18 +114,18 @@ export const GesHistoria = () => {
     { 
       key: 'ubicacion', 
       header: 'Ubicación',
-      render: (ubicacion: string) => (
+      render: (_,row) => (
         <Badge variant="outline" className="text-xs">
-          {ubicacion}
+          {row.nombre_ubicacion}
         </Badge>
       )
     },
     { 
       key: 'categoria', 
       header: 'Categoría',
-      render: (categoria: string) => (
+      render: (_,row) => (
         <Badge variant="secondary">
-          {categoria}
+          {row.nombre_categoria}
         </Badge>
       )
     },
@@ -297,7 +236,7 @@ export const GesHistoria = () => {
             </div>
           )}
         </div>
-        
+        <MapaInteractivo/>
         {open && <DialogEdit onSuccess={fetchHistories} />}
         {openCreate && <DialogAdd onSuccess={fetchHistories} />}
       </div>

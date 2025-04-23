@@ -7,6 +7,7 @@ import { apiService } from '@/service/apiservice';
 import { DialogEdit } from './DialogEdit';
 import { DialogAdd } from './DialogAdd';
 import { iNews } from '../interface';
+import { set } from 'date-fns';
 
 export const Noticias = () => {
   interface Column<T> {
@@ -79,7 +80,7 @@ export const Noticias = () => {
   };
 
   const handleSelectNews = (newsItem : iNews) => {
-    // Handle news selection for editing
+    setNoticiaSelected(newsItem);
     setOpen(true);
   };
 

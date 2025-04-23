@@ -1,4 +1,3 @@
-import React from 'react'
 import {
     Dialog,
     DialogContent,
@@ -18,8 +17,8 @@ export const DialogAdd = ({ open, onClose }: DialogAddProps) => {
         <Dialog open={open} onOpenChange={onClose}>
             <DialogContent className="max-w-4xl max-h-[90vh] bg-gray-800/90 backdrop-blur-lg border border-white/20 rounded-xl overflow-hidden text-white">
                 <DialogHeader>
-                    <DialogTitle>Agregar Presidente</DialogTitle>
-                    <DialogDescription>Agrega un nuevo presidente.</DialogDescription>
+                    <DialogTitle>Agregar Noticia</DialogTitle>
+                    <DialogDescription>Agrega una nueva noticia.</DialogDescription>
                 </DialogHeader>
                     <NoticiaForm/>
             </DialogContent>

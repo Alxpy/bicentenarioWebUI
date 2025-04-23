@@ -12,7 +12,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { DatePicker } from "@/components/ui/date-picker"; // Asumiendo que tienes un componente DatePicker
 import { iNews } from '../interface';
 
 interface NoticiaFormProps {
@@ -108,6 +107,7 @@ export const NoticiaForm = ({ initialData }: NoticiaFormProps) => {
         const imageFormData = new FormData();
         imageFormData.append('file', file);
         const response: any = await apiService.postFiles('files/upload?max_file_size=10485760', imageFormData);
+        console.log('Imagen subida:', response);
         imageUrl = response.data.file_url;
       }
 
@@ -117,7 +117,7 @@ export const NoticiaForm = ({ initialData }: NoticiaFormProps) => {
         id_Categoria:formData.id_Categoria,
         id_usuario: formData.id_usuario,
       };
-
+      console.log('Payload:', payload);
       const method = initialData?.id ? 'put' : 'post';
       const url = initialData?.id ? `news/${initialData.id}` : 'news';
 
