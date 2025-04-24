@@ -236,9 +236,8 @@ export const GesHistoria = () => {
             </div>
           )}
         </div>
-        <MapaInteractivo/>
         {open && <DialogEdit onSuccess={fetchHistories} />}
-        {openCreate && <DialogAdd onSuccess={fetchHistories} />}
+        {openCreate && <DialogAdd open={openCreate} onClose={() => setOpenCreate(false)}  onSuccess={fetchHistories} />}
       </div>
     </RoleLayout>
   );
