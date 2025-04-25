@@ -26,7 +26,7 @@ const GesBiblioteca = () => {
 
   const fetchLibros = async () => {
     setRefreshing(true);
-    await  apiService.get('bibliotecas').then((response: any) => {
+    await  apiService.get('library').then((response: any) => {
       console.log('Libros:', response.data);
       setLibros(response.data);      
         toast.success('Lista de libros actualizada');

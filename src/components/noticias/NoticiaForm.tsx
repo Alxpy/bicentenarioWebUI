@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { iNews } from '../interface';
+import { iNews, IUserGeneral } from '../interface';
 
 interface NoticiaFormProps {
   initialData?: iNews;
@@ -24,6 +24,8 @@ interface Categoria {
 }
 
 export const NoticiaForm = ({ initialData }: NoticiaFormProps) => {
+  const [users, setUsers] = useState<IUserGeneral[]>([]);
+  const [loadingUsers, setLoadingUsers] = useState(true);
   const [modoImagen, setModoImagen] = useState<'url' | 'archivo'>('url');
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [loadingCategorias, setLoadingCategorias] = useState(true);
@@ -32,7 +34,7 @@ export const NoticiaForm = ({ initialData }: NoticiaFormProps) => {
     resumen: '',
     contenido: '',
     imagen: '',
-    id_Categoria:'',
+    id_Categoria: '',
     id_usuario: '',
     fecha_publicacion: new Date().toISOString(),
   });
@@ -43,7 +45,7 @@ export const NoticiaForm = ({ initialData }: NoticiaFormProps) => {
   useEffect(() => {
     const fetchCategorias = async () => {
       try {
-        const response : any= await apiService.get('categories');
+        const response: any = await apiService.get('categories');
         console.log('Categorias:', response);
         const data = response.data || [];
         setCategorias(data);
@@ -55,8 +57,29 @@ export const NoticiaForm = ({ initialData }: NoticiaFormProps) => {
       }
     };
 
+
+
     fetchCategorias();
+    const fetchUsers = async () => {
+      try {
+        const response = await apiService.get('user');
+        const data: any = response.data || [];
+        setUsers(data);
+      } catch (error) {
+        console.error('Error al cargar usuarios:', error);
+        alert('Error al cargar usuarios');
+      } finally {
+        setLoadingUsers(false);
+      }
+    };
+
+    fetchUsers();
   }, []);
+
+  const handleSelectUser = (value: string) => {
+    setFormData(prev => ({ ...prev, id_usuario: value }));
+  };
+
 
   useEffect(() => {
     if (initialData) {
@@ -111,10 +134,10 @@ export const NoticiaForm = ({ initialData }: NoticiaFormProps) => {
         imageUrl = response.data.file_url;
       }
 
-      const payload = { 
-        ...formData, 
+      const payload = {
+        ...formData,
         imagen: imageUrl,
-        id_Categoria:formData.id_Categoria,
+        id_Categoria: formData.id_Categoria,
         id_usuario: formData.id_usuario,
       };
       console.log('Payload:', payload);
@@ -123,7 +146,7 @@ export const NoticiaForm = ({ initialData }: NoticiaFormProps) => {
 
       await apiService[method](url, payload);
       alert(`Noticia ${initialData?.id ? 'actualizada' : 'creada'} con éxito`);
-      
+
     } catch (error) {
       console.error('Error al enviar formulario:', error);
       alert('Error al procesar la solicitud');
@@ -136,7 +159,7 @@ export const NoticiaForm = ({ initialData }: NoticiaFormProps) => {
         {/* Sección de Información Básica */}
         <div className="space-y-4">
           <h2 className="text-xl font-bold border-b pb-2">Información Básica</h2>
-          
+
           <div className="grid grid-cols-1 gap-4">
             <div>
               <Label>Título</Label>
@@ -148,7 +171,7 @@ export const NoticiaForm = ({ initialData }: NoticiaFormProps) => {
                 placeholder="Título de la noticia"
               />
             </div>
-            
+
             <div>
               <Label>Resumen</Label>
               <Textarea
@@ -160,7 +183,7 @@ export const NoticiaForm = ({ initialData }: NoticiaFormProps) => {
                 rows={3}
               />
             </div>
-            
+
             <div>
               <Label>Contenido Completo</Label>
               <Textarea
@@ -178,15 +201,15 @@ export const NoticiaForm = ({ initialData }: NoticiaFormProps) => {
         {/* Sección de Categoría y Fecha */}
         <div className="space-y-4">
           <h2 className="text-xl font-bold border-b pb-2">Clasificación</h2>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <Label>Categoría</Label>
               {loadingCategorias ? (
                 <Input disabled placeholder="Cargando categorías..." />
               ) : (
-                <Select 
-                  onValueChange={handleSelectCategoria} 
+                <Select
+                  onValueChange={handleSelectCategoria}
                   value={formData.id_Categoria.toString()}
                 >
                   <SelectTrigger className="w-full">
@@ -202,7 +225,7 @@ export const NoticiaForm = ({ initialData }: NoticiaFormProps) => {
                 </Select>
               )}
             </div>
-            
+
             <div>
               <Label>Fecha de Publicación</Label>
               <Input
@@ -216,17 +239,25 @@ export const NoticiaForm = ({ initialData }: NoticiaFormProps) => {
                 required
               />
             </div>
-            
+
             <div className="md:col-span-2">
-              <Label>ID Usuario (Autor)</Label>
-              <Input
-                name="id_usuario"
-                value={formData.id_usuario}
-                onChange={handleChange}
-                required
-                placeholder="ID del usuario autor"
-                type="number"
-              />
+              <Label>Usuario Asociado</Label>
+              {loadingUsers ? (
+                <Input disabled placeholder="Cargando usuarios..." />
+              ) : (
+                <Select onValueChange={handleSelectUser} value={formData.id_usuario?.toString()}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Seleccione un usuario" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {users.map((user) => (
+                      <SelectItem key={user.id} value={user.id.toString()}>
+                        {`${user.nombre} ${user.apellidoPaterno}`}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
             </div>
           </div>
         </div>
@@ -234,7 +265,7 @@ export const NoticiaForm = ({ initialData }: NoticiaFormProps) => {
         {/* Sección de Imagen */}
         <div className="space-y-4">
           <h2 className="text-xl font-bold border-b pb-2">Imagen de la Noticia</h2>
-          
+
           <div className="flex gap-4 mb-4">
             <Button
               type="button"

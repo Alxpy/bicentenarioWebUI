@@ -12,7 +12,7 @@ export interface IHistory {
   nombre_categoria: string
 }
 
-interface ICategoria{
+export interface ICategoria{
   id: number;
   nombre: string;
   descripcion: string;

@@ -19,7 +19,7 @@ export const DialogCrear = () => {
 
     const fetchTipos = async () => {
 
-        await apiService.get("tipoDocumentos").then((response: any) => {
+        await apiService.get("documentTypes").then((response: any) => {
             console.log("Tipos:", response.data);
             setTipos(response.data);
         }).catch((error) => {
@@ -33,7 +33,7 @@ export const DialogCrear = () => {
 
     const handleAgregarTipo = async (nuevoNombre: string) => {
         try {
-            await apiService.post("tipoDocumento", { tipo: nuevoNombre });
+            await apiService.post("documentTypes", { tipo: nuevoNombre });
             fetchTipos();
         } catch (error) {
             console.error("Error adding tipo:", error);
@@ -43,7 +43,7 @@ export const DialogCrear = () => {
     const handleSubmit = async (libro: ILibro) => {
         try {
            console.log("Libro a guardar:", libro);
-            await apiService.post("biblioteca", {
+            await apiService.post("library", {
                 titulo: libro.titulo,
                 autor: libro.autor,
                 imagen: libro.imagen,
