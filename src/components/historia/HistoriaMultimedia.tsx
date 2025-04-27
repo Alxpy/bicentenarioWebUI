@@ -8,10 +8,18 @@ import { Loader2, Trash2, ImageIcon, VideoIcon } from 'lucide-react';
 
 export interface IMultimedia {
   id: number;
-  url: string;
+  enlace: string;
   tipo: 'imagen' | 'video';
   id_historia?: number;
 }
+
+export interface IMultimediaHistoria {
+    id_multimedia: number;
+    id_historia: number;
+    enlace: string;
+    tipo: string;
+}
+
 
 type NewItemType = {
   tipo: 'imagen' | 'video';
@@ -26,7 +34,7 @@ interface MultimediaProps {
 }
 
 export const Multimedia = ({ historyId }: MultimediaProps) => {
-  const [multimediaItems, setMultimediaItems] = useState<IMultimedia[]>([]);
+  const [multimediaItems, setMultimediaItems] = useState<IMultimediaHistoria[]>([]);
   const [newItem, setNewItem] = useState<NewItemType>({
     tipo: 'imagen',
     method: 'url',
@@ -40,8 +48,8 @@ export const Multimedia = ({ historyId }: MultimediaProps) => {
   const fetchData = useCallback(async () => {
     setIsGalleryLoading(true);
     try {
-      const response = await apiService.get<IMultimedia[]>(`historia_multimedia/historia/${historyId}`);
-      const sortedItems = response.data.sort((a, b) => b.id - a.id);
+      const response = await apiService.get<IMultimediaHistoria[]>(`multimedia_historia/ByHistoriaId/${historyId}`);
+      const sortedItems = response.data.sort((a, b) => b.id_multimedia - a.id_multimedia);
       setMultimediaItems(sortedItems);
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -55,7 +63,9 @@ export const Multimedia = ({ historyId }: MultimediaProps) => {
   }, [fetchData, historyId]);
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    console.log('File input changed:', e.target.files);
     if (e.target.files?.[0]) {
+        console.log('File selected:', e.target.files[0]);
       const file = e.target.files[0];
       const preview = URL.createObjectURL(file);
       setNewItem(prev => ({
@@ -68,9 +78,10 @@ export const Multimedia = ({ historyId }: MultimediaProps) => {
   };
 
   const handleSaveItem = async () => {
+    console.log('Saving item:', newItem, 'id', historyId);
     if (!historyId) return;
     setIsLoading(true);
-
+    console.log('Saving item:', newItem);
     try {
       let fileUrl = newItem.url;
 
@@ -78,10 +89,8 @@ export const Multimedia = ({ historyId }: MultimediaProps) => {
       if (newItem.method === 'upload' && newItem.file) {
         const formData = new FormData();
         formData.append('file', newItem.file);
-        formData.append('name', `historia-${historyId}-multimedia`);
-        formData.append('tipo', 'multimedia');
 
-        const uploadResponse = await apiService.post<{ file_url: string }>('files/upload', formData);
+        const uploadResponse : any = await apiService.postFiles('files/upload?max_file_size=10485760', formData);
         fileUrl = uploadResponse.data.file_url;
       }
 
@@ -95,7 +104,7 @@ export const Multimedia = ({ historyId }: MultimediaProps) => {
         multimediaId = updatedMedia.data.id;
       } else {
         const newMedia = await apiService.post<IMultimedia>('multimedia', {
-          url: fileUrl,
+          enlace: fileUrl,
           tipo: newItem.tipo
         });
         multimediaId = newMedia.data.id;
@@ -103,7 +112,7 @@ export const Multimedia = ({ historyId }: MultimediaProps) => {
 
       // Asociar con historia
       if (multimediaId && !editingItem) {
-        await apiService.post('historia_multimedia', {
+        await apiService.post('multimedia_historia', {
           id_historia: historyId,
           id_multimedia: multimediaId
         });
@@ -122,9 +131,9 @@ export const Multimedia = ({ historyId }: MultimediaProps) => {
     if (!confirm('¿Estás seguro de eliminar este elemento?')) return;
 
     try {
+      await apiService.delete(`multimedia_historia/${id}`);
       await apiService.delete(`multimedia/${id}`);
-      await apiService.delete(`historia_multimedia/${id}/historia/${historyId}`);
-      setMultimediaItems(prev => prev.filter(item => item.id !== id));
+      setMultimediaItems(prev => prev.filter(item => item.id_multimedia !== id));
     } catch (error) {
       console.error('Error deleting multimedia:', error);
     }
@@ -145,7 +154,7 @@ export const Multimedia = ({ historyId }: MultimediaProps) => {
     <div className="space-y-8">
       {/* Formulario de edición */}
       <div className="bg-slate-50 dark:bg-slate-900 rounded-xl p-6 shadow-sm">
-        <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-6">
+        <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-800 mb-6">
           {editingItem ? 'Editar elemento' : 'Nuevo elemento multimedia'}
         </h3>
 
@@ -162,7 +171,7 @@ export const Multimedia = ({ historyId }: MultimediaProps) => {
                   preview: undefined
                 }))}
               >
-                <SelectTrigger className="bg-white dark:bg-slate-800">
+                <SelectTrigger className="bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400">
                   <SelectValue placeholder="Seleccionar tipo" />
                 </SelectTrigger>
                 <SelectContent>
@@ -241,7 +250,6 @@ export const Multimedia = ({ historyId }: MultimediaProps) => {
                 <Input
                   type="file"
                   onChange={handleFileChange}
-                  accept={newItem.tipo === 'imagen' ? 'image/*' : 'video/*'}
                   className="bg-white dark:bg-slate-800"
                 />
                 {newItem.preview && newItem.tipo === 'imagen' && (
@@ -269,7 +277,7 @@ export const Multimedia = ({ historyId }: MultimediaProps) => {
             </Button>
           )}
           <Button
-            onClick={handleSaveItem}
+            onClick={ handleSaveItem}
             disabled={isLoading || (!newItem.url && !newItem.file)}
             className="bg-blue-600 hover:bg-blue-700 text-white"
           >
@@ -297,13 +305,13 @@ export const Multimedia = ({ historyId }: MultimediaProps) => {
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {multimediaItems.map((item) => (
               <div
-                key={item.id}
+                key={item.id_multimedia}
                 className="group relative border rounded-lg overflow-hidden bg-white dark:bg-slate-800 hover:shadow-lg transition-all"
               >
                 <div className="aspect-square bg-slate-100 dark:bg-slate-700 relative">
                   {item.tipo === 'imagen' ? (
                     <img
-                      src={item.url}
+                      src={item.enlace}
                       alt="Multimedia"
                       className="w-full h-full object-cover"
                       onError={(e) => {
@@ -326,13 +334,13 @@ export const Multimedia = ({ historyId }: MultimediaProps) => {
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => handleRemoveItem(item.id)}
+                      onClick={() => handleRemoveItem(item.id_multimedia)}
                       className="text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
-                  <p className="text-xs text-slate-500 truncate">{item.url}</p>
+                  <p className="text-xs text-slate-500 truncate">{item.enlace}</p>
                 </div>
               </div>
             ))}

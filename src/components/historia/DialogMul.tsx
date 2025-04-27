@@ -18,8 +18,8 @@ export const DialogMul = ({ open, onClose, id_historia }: IBibliotecaProrops) =>
         <Dialog open={open} onOpenChange={onClose}>
             <DialogContent className="max-w-[90vw] max-h-[100vh] bg-gray-800/90 backdrop-blur-lg border border-white/20 rounded-xl overflow-hidden text-white">
                 <DialogHeader>
-                    <DialogTitle>Agregar Noticia</DialogTitle>
-                    <DialogDescription>Agrega una nueva noticia.</DialogDescription>
+                    <DialogTitle>Multimedia</DialogTitle>
+                    <DialogDescription>Gestion de multimedia.</DialogDescription>
                 </DialogHeader>
                 <Multimedia historyId={id_historia} />
             </DialogContent>

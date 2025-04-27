@@ -30,6 +30,7 @@ export const GesHistoria = () => {
   const [openMul, setOpenMul] = useState(false);
   const [, setHistory] = useAtom(historyAdminEditAtom);
   const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [selectedHistory, setSelectedHistory] = useState<IHistory>();
 
   const fetchHistories = async () => {
     const isRefreshing = histories.length > 0;
@@ -153,7 +154,15 @@ export const GesHistoria = () => {
           >
             Editar
           </Button>
-          <Button>
+          <Button
+            variant="outline" 
+            size="sm" 
+            onClick={() => {
+              setSelectedHistory(row);
+              setOpenMul(true);
+            }}
+            className="hover:bg-green-50 dark:hover:bg-green-900/30"
+          >
             Multimedia
           </Button>
           <Button 
@@ -242,6 +251,7 @@ export const GesHistoria = () => {
         </div>
         {open && <DialogEdit onSuccess={fetchHistories} />}
         {openCreate && <DialogAdd open={openCreate} onClose={() => setOpenCreate(false)}  onSuccess={fetchHistories} />}
+        {openMul && <DialogMul open={openMul} onClose={() => setOpenMul(false)} id_historia={selectedHistory.id} onSuccess={fetchHistories} />}
       </div>
     </RoleLayout>
   );
