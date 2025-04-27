@@ -17,7 +17,7 @@ import { es } from 'date-fns/locale';
 import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
 import {IHistory} from '@/components/interface'
-import { MapaInteractivo } from '../ubicacion/MapaInteractivo';
+import { DialogMul } from './DialogMul'
 
 export const GesHistoria = () => {
   
@@ -27,6 +27,7 @@ export const GesHistoria = () => {
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
   const [open, setOpen] = useAtom(openAdminHistoryAtom);
   const [openCreate, setOpenCreate] = useAtom(openAdminCreateHistoryAtom);
+  const [openMul, setOpenMul] = useState(false);
   const [, setHistory] = useAtom(historyAdminEditAtom);
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
@@ -151,6 +152,9 @@ export const GesHistoria = () => {
             className="hover:bg-blue-50 dark:hover:bg-blue-900/30"
           >
             Editar
+          </Button>
+          <Button>
+            Multimedia
           </Button>
           <Button 
             variant="outline" 

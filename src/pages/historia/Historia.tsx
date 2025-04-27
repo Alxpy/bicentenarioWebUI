@@ -9,48 +9,48 @@ import MainLayout from '@/templates/MainLayout'
 import { useEffect, useState } from 'react'
 import { apiService } from '@/service/apiservice'
 
-// Mock data - Reemplazar con tus datos reales
-const [historias,setHistorias] = useState<IHistory[]>([])
 
-// Categorías disponibles
-const [categorias, setCategorias] = useState<ICategoria[]>([])
-
-
-const fetchHistorias = async () => {
-  await apiService.get('history').then((response: any) => {
-    console.log('Historias:', response.data)
-    setHistorias(response.data)
-  }).catch((error) => {
-    console.error('Error fetching historias:', error)
-  })
-}
-
-const fetchCategorias = async () => {
-  await apiService.get('historyCategories').then((response: any) => {
-    console.log('Categorías:', response.data)
-    setCategorias(response.data)
-  }).catch((error) => {
-    console.error('Error fetching categorias:', error)
-  })
-}
-
-useEffect(() => {
-  fetchHistorias()
-  fetchCategorias()
-},[])
 
 
 
 export const Historia = () => {
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState(0)
+  // Mock data - Reemplazar con tus datos reales
+  const [historias, setHistorias] = useState<IHistory[]>([])
 
+  // Categorías disponibles
+  const [categorias, setCategorias] = useState<ICategoria[]>([])
+
+
+  const fetchHistorias = async () => {
+    await apiService.get('history').then((response: any) => {
+      console.log('Historias:', response.data)
+      setHistorias(response.data)
+    }).catch((error) => {
+      console.error('Error fetching historias:', error)
+    })
+  }
+
+  const fetchCategorias = async () => {
+    await apiService.get('historyCategories').then((response: any) => {
+      console.log('Categorías:', response.data)
+      setCategorias(response.data)
+    }).catch((error) => {
+      console.error('Error fetching categorias:', error)
+    })
+  }
+
+  useEffect(() => {
+    fetchHistorias()
+    fetchCategorias()
+  }, [])
   // Filtrar historias
   const filteredHistorias = historias.filter(historia => {
-    const matchesSearch = historia.titulo.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                         historia.descripcion.toLowerCase().includes(searchTerm.toLowerCase())
+    const matchesSearch = historia.titulo.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      historia.descripcion.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesCategory = selectedCategory === 0 || historia.id_categoria === selectedCategory
-    
+
     return matchesSearch && matchesCategory
   })
 
@@ -67,7 +67,7 @@ export const Historia = () => {
           </motion.h1>
 
           {/* Filtros de búsqueda */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2 }}
@@ -82,7 +82,7 @@ export const Historia = () => {
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-            
+
             <Select value={selectedCategory.toString()} onValueChange={(value) => setSelectedCategory(Number(value))}>
               <SelectTrigger className="bg-white/90 ">
                 <SelectValue placeholder="Selecciona una categoría" />
@@ -154,14 +154,14 @@ export const Historia = () => {
               ))}
             </div>
           ) : (
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               className="text-center py-12"
             >
               <p className="text-slate-600 text-lg">No se encontraron historias que coincidan con tu búsqueda.</p>
-              <Button 
-                variant="ghost" 
+              <Button
+                variant="ghost"
                 className="mt-4 text-blue-600 hover:text-blue-800"
                 onClick={() => {
                   setSearchTerm('')
