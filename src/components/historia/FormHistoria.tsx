@@ -30,7 +30,7 @@ export const FormHistoria = ({ initialData, setCreateUbi }: { initialData?: any,
   const [modoImagen, setModoImagen] = useState<'url' | 'archivo'>('url')
   const [archivoTemporal, setArchivoTemporal] = useState<File | null>(null)
   const [previewUrl, setPreviewUrl] = useState('')
-
+  console.log(initialData)
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: initialData || {
@@ -39,7 +39,9 @@ export const FormHistoria = ({ initialData, setCreateUbi }: { initialData?: any,
       fecha_inicio: '',
       fecha_fin: '',
       imagen: '',
-      id_categoria: 0
+      archivo: undefined,
+      id_categoria: 0,
+      id_ubicacion: 0
     }
   })
 
@@ -68,6 +70,8 @@ export const FormHistoria = ({ initialData, setCreateUbi }: { initialData?: any,
     if (file) {
       setArchivoTemporal(file)
       setPreviewUrl(URL.createObjectURL(file))
+      form.setValue("imagen",URL.createObjectURL(file)); // Actualiza el valor en react-hook-form
+      form.clearErrors("imagen"); // Limpia errores
     }
   }
 
@@ -94,12 +98,17 @@ export const FormHistoria = ({ initialData, setCreateUbi }: { initialData?: any,
         imageUrl = await uploadImage();
       }
       
-      const data = {
+      let data = {
         ...values,
-        imagen: imageUrl
+        imagen: imageUrl,
       };
 
       if (initialData) {
+        data = {
+          ...values,
+          id_ubicacion: initialData.id_ubicacion,
+        }
+        console.log('actualizando historia', data)
         await apiService.put(`history/${initialData.id}`, data);
         // Manejar éxito de actualización
         alert('Historia actualizada correctamente');

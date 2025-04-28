@@ -27,6 +27,7 @@ export const GesHistoria = () => {
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
   const [open, setOpen] = useAtom(openAdminHistoryAtom);
   const [openCreate, setOpenCreate] = useAtom(openAdminCreateHistoryAtom);
+  const [openEdit, setOpenEdit] = useState(false);
   const [openMul, setOpenMul] = useState(false);
   const [, setHistory] = useAtom(historyAdminEditAtom);
   const [deletingId, setDeletingId] = useState<number | null>(null);
@@ -51,8 +52,10 @@ export const GesHistoria = () => {
   };
 
   const handleSelectHistory = (history: IHistory) => {
+    console.log(openEdit)
+    console.log(history);
     setHistory(history);
-    setOpen(true);
+    setOpenEdit(true);
   };
 
   const addHistory = () => {
@@ -128,15 +131,6 @@ export const GesHistoria = () => {
       render: (_,row) => (
         <Badge variant="secondary">
           {row.nombre_categoria}
-        </Badge>
-      )
-    },
-    {
-      key: 'estado', 
-      header: 'Estado',
-      render: (value: boolean) => (
-        <Badge variant={value ? 'default' : 'secondary'}>
-          {value ? 'Activo' : 'Inactivo'}
         </Badge>
       )
     },
@@ -249,7 +243,7 @@ export const GesHistoria = () => {
             </div>
           )}
         </div>
-        {open && <DialogEdit onSuccess={fetchHistories} />}
+        {openEdit && <DialogEdit open={openEdit} onClose={() => setOpenEdit(false)}  onSuccess={fetchHistories} />}
         {openCreate && <DialogAdd open={openCreate} onClose={() => setOpenCreate(false)}  onSuccess={fetchHistories} />}
         {openMul && <DialogMul open={openMul} onClose={() => setOpenMul(false)} id_historia={selectedHistory.id} onSuccess={fetchHistories} />}
       </div>
