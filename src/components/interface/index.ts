@@ -1,5 +1,6 @@
 export * from './IUbicacion';
 export * from './iBiblioteca';
+export * from './iCultura';
 export * from './iHistoria';
 export * from './iNews';
 export * from './iPresidente';

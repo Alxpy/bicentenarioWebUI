@@ -8,6 +8,7 @@ import { GesHistoria } from '@/components/historia/GesHistoria'
 import  GesBiblioteca  from '@/components/biblioteca/GesBiblioteca'
 import { GesPresidente } from '@/components/presidente/GesPresidente'
 import { Noticias } from '@/components/noticias/Noticias'
+import { Cultura } from '@/components/cultura/Cultura'
 
 export const Admin = () => {
 
@@ -23,6 +24,7 @@ export const Admin = () => {
             <Route path={PrivateRoutesAdmin.BIBLIOTHECA} element={<GesBiblioteca />} />
             <Route path={PrivateRoutesAdmin.PRESIDENTES} element={<GesPresidente/>}/>
             <Route path={PrivateRoutesAdmin.NEWS} element={<Noticias/>}/>
+            <Route path={PrivateRoutesAdmin.CULTURA} element={<Cultura/>}/>
     </RoutesNotFound>
   )
 }

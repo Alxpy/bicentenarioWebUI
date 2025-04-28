@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/sidebar"
 
 import { PrivateRoutesAdmin } from "@/routes/routes";
+import { title } from "process";
 
 // Menu items por rol
 const menuItems = {
@@ -48,6 +49,11 @@ const menuItems = {
     {
       title: "Presidentes",
       url: `${PrivateRoutesAdmin.PRESIDENTES}`,
+      icon: FileText,
+    },
+    {
+      title : "Etnias",
+      url: `${PrivateRoutesAdmin.CULTURA}`,
       icon: FileText,
     },
     {

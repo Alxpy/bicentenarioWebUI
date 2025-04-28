@@ -27,5 +27,6 @@ export const PrivateRoutesAdmin = {
     PRESIDENTES : 'presidentes',
     COMENTARIOS : 'comentarios',
     ESTADISTICAS : 'estadisticas',
+    CULTURA : 'cultura',
 };
 
