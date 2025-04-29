@@ -11,54 +11,31 @@ import {
 import Autoplay from "embla-carousel-autoplay"
 
 import { IDataNew } from "@/components/interface"
+import { apiService } from "@/service/apiservice"
 
-const dataNew:IDataNew[] = [
-  {
-    title: "Alexander el Aestetic.",
-    description:
-      "Aleaxander el aestetic es visto en la paz.",
-    date: "12/12/2021",
-    image: "http://127.0.0.1:3000/images/alex.jpg",
-  },
-  {
-    title: "Alexander el aestetic en el monte",
-    description:
-      "Nos encontramos con alex en la pampa.",
-    date: "12/12/2021",
-    image: "http://127.0.0.1:3000/images/alexAbrigado.jpg"
-  },
-  {
-    title: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-    description:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed nonne merninisti licere mihi ista probare, quae sunt a te dicta? Refert tamen, quo modo.",
-    date: "12/12/2021",
-    image: "http://127.0.0.1:3000/images/lago.png"
-  },
-  {
-    title: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-    description:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed nonne merninisti licere mihi ista probare, quae sunt a te dicta? Refert tamen, quo modo.",
-    date: "12/12/2021",
-    image: "http://127.0.0.1:3000/images/illimani.jpg"
-  },
-  {
-    title: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-    description:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed nonne merninisti licere mihi ista probare, quae sunt a te dicta? Refert tamen, quo modo.",
-    date: "12/12/2021",
-    image: "http://127.0.0.1:3000/images/salar-min.jpg"
-  },
-  {
-    title: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-    description:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed nonne merninisti licere mihi ista probare, quae sunt a te dicta? Refert tamen, quo modo.",
-    date: "12/12/2021",
-    image: "http://127.0.0.1:3000/images/teleferico.jpg"
-  },
-]
+interface INew {
+  titulo: string
+  resumen: string
+  fecha_publicacion: string
+  imagen: string
+}
+
 
 
 const CarrouselNews = () => {
+
+  const [dataNew, setDataNew] = React.useState<IDataNew[]>([])
+  const [loading, setLoading] = React.useState(true)
+
+  React.useEffect(() => {
+    const getData = async () => {
+      const response = await apiService.get('news')
+      setDataNew(response.data)
+      setLoading(false)
+    }
+    getData()
+  }, [])
+
     return (
         <Carousel
           opts={{

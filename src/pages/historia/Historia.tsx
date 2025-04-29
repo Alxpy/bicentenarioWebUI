@@ -8,12 +8,13 @@ import { IHistory, ICategoria } from '@/components/interface'
 import MainLayout from '@/templates/MainLayout'
 import { useEffect, useState } from 'react'
 import { apiService } from '@/service/apiservice'
-
-
+import useLocalStorage from '@/hooks/useLocalStorage'
+import { useNavigate } from 'react-router-dom'
 
 
 
 export const Historia = () => {
+  const navigate = useNavigate()
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState(0)
   // Mock data - Reemplazar con tus datos reales
@@ -22,6 +23,12 @@ export const Historia = () => {
   // Categorías disponibles
   const [categorias, setCategorias] = useState<ICategoria[]>([])
 
+
+  const [showHistory, setshowHistory] = useLocalStorage<IHistory | null>('showHistory', null)
+
+  const selectHistoria = (historia: IHistory) => {
+    setshowHistory(historia)
+  }
 
   const fetchHistorias = async () => {
     await apiService.get('history').then((response: any) => {
@@ -143,7 +150,9 @@ export const Historia = () => {
                           <FiCalendar className="mr-2" />
                           {historia.fecha_fin} - {historia.fecha_fin}
                         </div>
-                        <Button variant="outline" size="sm" className="gap-2 text-blue-800 border-blue-300 hover:bg-blue-100">
+                        <Button variant="outline" size="sm" className="gap-2 text-blue-800 border-blue-300 hover:bg-blue-100"
+                          onClick={ () => {setshowHistory(historia); navigate('/showhistoria')}}
+                        >
                           Ver más
                           <FiArrowRight className="w-4 h-4" />
                         </Button>

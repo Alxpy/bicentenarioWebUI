@@ -87,8 +87,8 @@ export const Noticias = () => {
   const deleteNews = async (id:number) => {
     if (window.confirm('¿Estás seguro de eliminar esta noticia?')) {
       try {
-        // await apiService.delete(`/noticias/${id}`);
-        // fetchNews(); // Refresh the list
+         await apiService.delete(`/news/${id}`);
+         fetchNews(); // Refresh the list
       } catch (error) {
         console.error('Error deleting news:', error);
       }

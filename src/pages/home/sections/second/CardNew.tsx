@@ -19,14 +19,14 @@ const CardNew = ({ dataNew }: CardNewProps) => {
      
       <CardHeader className="p-4 bg-slate-200">
         <CardTitle className="text-lg font-semibold text-center truncate">
-          {dataNew.title}
+          {dataNew.titulo}
         </CardTitle>
       </CardHeader>
 
       <div className="flex justify-center items-center h-[100%] w-full overflow-hidden shadow-xl">
         <img
-          src={dataNew.image}
-          alt={dataNew.title}
+          src={dataNew.imagen}
+          alt={dataNew.titulo}
           crossOrigin="anonymous"
           className="h-full w-full object-cover"
         />
@@ -34,12 +34,12 @@ const CardNew = ({ dataNew }: CardNewProps) => {
 
       <CardContent className="p-4 flex-grow">
         <CardDescription className="text-xs text-gray-700 line-clamp-3">
-          {dataNew.description}
+          {dataNew.resumen}
         </CardDescription>
       </CardContent>
 
       <CardFooter className="flex justify-between items-center p-4 bg-gray-100">
-        <span className="text-xs text-gray-500">{dataNew.date}</span>
+        <span className="text-xs text-gray-500">{dataNew.fecha_publicacion}</span>
         <button className="text-blue-500 text-xs hover:underline">Ver más</button>
       </CardFooter>
     </Card>

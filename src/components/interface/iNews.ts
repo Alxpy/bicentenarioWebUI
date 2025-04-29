@@ -1,8 +1,8 @@
 export interface IDataNew {
-    title: string
-    description: string
-    date: string
-    image: string
+    titulo: string
+    resumen: string
+    fecha_publicacion: string
+    imagen: string
 }
 
 export interface IResponse {

@@ -5,7 +5,8 @@ import RoutesNotFound from '@/utilities/RoutesNotFound';
 import { PublicRoutes, PrivateRoutesAdmin } from './routes';
 import { AuthGuard, AdminGuard } from '@/guards';
 import { Admin } from '@/pages/admin/Admin';
-import { Historia } from '@/pages/historia/Historia';
+import { Historia, ShowHistoria } from '@/pages/historia';
+import { Biblioteca } from '@/pages/biblioteca/Biblioteca';
 
 const AppRoutes = () => {
   return (
@@ -17,6 +18,8 @@ const AppRoutes = () => {
         <Route path={PublicRoutes.AUTH} element={<Auth />} />
         <Route path={PublicRoutes.VERIFY} element={<Verify />} />
         <Route path={PublicRoutes.HISTORIA} element={<Historia />} />
+        <Route path={PublicRoutes.SHOWHISTORIA} element={<ShowHistoria />} />
+        <Route path={PublicRoutes.BIBLIOTECA} element={<Biblioteca />} />
 
         <Route path={`${PrivateRoutesAdmin.BASE}/*`} element={<Admin />}>
 

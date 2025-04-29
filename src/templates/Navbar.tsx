@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import * as React from "react";
-import { PublicRoutes} from "@/routes/routes";
+import { PublicRoutes } from "@/routes/routes";
 import { cn } from "@/lib/utils";
 import { getUser } from "@/storage/session";
 import NavUser from './NavUser'
@@ -98,7 +98,7 @@ const Navbar = () => {
   const [isSticky, setIsSticky] = useState(false);
   const [isLogin, setIsLogin] = useState(false);
   const [user] = useState(getUser() || null);
-  
+
   useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY > 0) {
@@ -136,56 +136,29 @@ const Navbar = () => {
       <NavigationMenu>
         <NavigationMenuList className="flex">
           <NavigationMenuItem>
-            <NavigationMenuLink href={PublicRoutes.HOME} className="text-xl ">
+            <NavigationMenuLink href={PublicRoutes.HOME} className=" ">
               Inicio
             </NavigationMenuLink>
           </NavigationMenuItem>
           <NavigationMenuItem>
-            <NavigationMenuTrigger className={isSticky ? "bg-slate-100 hover:bg-slate-800" : "bg-slate-500 hover:bg-slate-800"}>
+            <NavigationMenuLink href={PublicRoutes.HISTORIA} className=" ">
               Historia
-            </NavigationMenuTrigger>
-            <NavigationMenuContent className="max-w-[90vw] overflow-auto">
-              <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
-                {components.map((component) => (
-                  <ListItem key={component.title} title={component.title} href={component.href}>
-                    {component.description}
-                  </ListItem>
-                ))}
-              </ul>
-            </NavigationMenuContent>
+            </NavigationMenuLink>
           </NavigationMenuItem>
           <NavigationMenuItem>
-            <NavigationMenuTrigger className={isSticky ? "bg-slate-100 hover:bg-slate-800" : "bg-slate-500 hover:bg-slate-800"}>
+            <NavigationMenuLink href={PublicRoutes.HOME} className=" ">
               Eventos
-            </NavigationMenuTrigger>
-            <NavigationMenuContent className="max-w-[90vw] overflow-auto">
-              <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
-                {componentsEvnt.map((component) => (
-                  <ListItem key={component.title} title={component.title} href={component.href}>
-                    {component.description}
-                  </ListItem>
-                ))}
-              </ul>
-            </NavigationMenuContent>
+            </NavigationMenuLink>
           </NavigationMenuItem>
           <NavigationMenuItem>
-            <NavigationMenuTrigger className={isSticky ? "bg-slate-100 hover:bg-slate-800" : "bg-slate-500 hover:bg-slate-800"}>
+            <NavigationMenuLink href={PublicRoutes.BIBLIOTECA} className=" ">
               Biblioteca
-            </NavigationMenuTrigger>
-            <NavigationMenuContent className="max-w-[90vw] overflow-auto">
-              <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
-                {componentsBlb.map((component) => (
-                  <ListItem key={component.title} title={component.title} href={component.href}>
-                    {component.description}
-                  </ListItem>
-                ))}
-              </ul>
-            </NavigationMenuContent>
+            </NavigationMenuLink>
           </NavigationMenuItem>
-          <NavigationMenuLink href={PublicRoutes.HOME} className="text-xl ">
+          <NavigationMenuLink href={PublicRoutes.CULTURA} className=" ">
             Cultura
           </NavigationMenuLink>
-          <NavigationMenuLink href={PublicRoutes.HOME} className="text-xl ">
+          <NavigationMenuLink href={PublicRoutes.PRESIDENTES} className=" ">
             Presidentes
           </NavigationMenuLink>
         </NavigationMenuList>

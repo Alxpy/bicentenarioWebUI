@@ -7,6 +7,10 @@ export const PublicRoutes = {
     SHOP : '/shop',
     REGISTER : '/register',
     HISTORIA : '/historia',
+    SHOWHISTORIA:'/showhistoria',
+    BIBLIOTECA : '/biblioteca',
+    PRESIDENTES : '/presidentes',
+    CULTURA : '/cultura',
 };
 
 export const PrivateRoutes = {
