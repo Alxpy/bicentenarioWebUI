@@ -7,6 +7,9 @@ import { AuthGuard, AdminGuard } from '@/guards';
 import { Admin } from '@/pages/admin/Admin';
 import { Historia, ShowHistoria } from '@/pages/historia';
 import { Biblioteca } from '@/pages/biblioteca/Biblioteca';
+import { Presidente } from '@/pages/presidentes/Presidente';
+import { PresidenteDetail } from '@/pages/presidentes/PresidenteDetail';
+import { Cultura } from '@/pages/cultura/Cultura';
 
 const AppRoutes = () => {
   return (
@@ -20,6 +23,11 @@ const AppRoutes = () => {
         <Route path={PublicRoutes.HISTORIA} element={<Historia />} />
         <Route path={PublicRoutes.SHOWHISTORIA} element={<ShowHistoria />} />
         <Route path={PublicRoutes.BIBLIOTECA} element={<Biblioteca />} />
+        <Route path={PublicRoutes.PRESIDENTES} element={<Presidente />} />
+        <Route path={PublicRoutes.PRESIDENTE} element={<PresidenteDetail />} />
+        <Route path={PublicRoutes.CULTURA} element={<Cultura />} />
+
+        {/* Rutas privadas */}
 
         <Route path={`${PrivateRoutesAdmin.BASE}/*`} element={<Admin />}>
 

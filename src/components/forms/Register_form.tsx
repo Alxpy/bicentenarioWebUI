@@ -10,13 +10,25 @@ import { toast } from "sonner"
 import { saveEmail } from "@/storage/session";
 import { apiService } from '@/service/apiservice';
 import { PublicRoutes } from '@/routes/routes';
-
+import useLocalStorage from '@/hooks/useLocalStorage';
+import { AArrowDown } from 'lucide-react';
 interface RegisterProps {
     type_register: string;
 }
 
 const RegisterForm = ({ type_register }: RegisterProps) => {
-    const [userToEdit] = useAtom(userAdminEditAtom);
+    const [userToEdit,setUserEdit] = useLocalStorage<{
+        nombre: "",
+        apellidoPaterno: "",
+        apellidoMaterno: "",
+        correo: "",
+        contrasena: "",
+        confirmarContrasena: "",
+        genero: "",
+        telefono: "",
+        pais: "",
+        ciudad: ""
+    }>('user', null);
     const [, setEmail] = useAtom(emailAtom);
     const navigate = useNavigate();
 
@@ -153,8 +165,13 @@ const RegisterForm = ({ type_register }: RegisterProps) => {
                   pais: formData.pais,
                   ciudad: formData.ciudad,
                 }
-                await apiService.put(`usuario`,userToEdit?.id,editUser).then((response) => {
+                await apiService.put(`user/${userToEdit?.id}`,editUser).then( async (response) => {
                     console.log(response);  
+                    await apiService.get(`user/${userToEdit?.id}`).then((response) => {	
+                        const data : any = response.data;
+                        setUserEdit(data);
+
+                    })
                 });
                 toast.success("Usuario actualizado correctamente");
                 // Aquí iría la llamada al controlador de actualización

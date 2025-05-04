@@ -19,4 +19,6 @@ export interface ICultura{
     descripcion: string
     id_ubicacion: number
     nombre_ubicacion: string
+    latitud: number
+    longitud: number
 }

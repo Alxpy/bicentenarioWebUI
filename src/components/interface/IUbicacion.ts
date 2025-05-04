@@ -16,3 +16,9 @@ export interface iUbicacionCreate {
     descripcion: string
   }
   
+export interface IUbicacionGeneral{
+    id: number
+    nombre: string
+    latitud: number
+    longitud: number
+  }

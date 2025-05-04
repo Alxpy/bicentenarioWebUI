@@ -8,7 +8,7 @@ class RegisterController {
   async register(user: iUser_Register) {
     console.log(user.apellidoMaterno);
     try {
-      const response: IApiResponse = await apiService.post("register", {
+      const response: IApiResponse = await apiService.post("user", {
         nombre: user.nombre,
         apellidoPaterno: user.apellidoPaterno,
         apellidoMaterno: user.apellidoMaterno,
@@ -28,7 +28,9 @@ class RegisterController {
       ;
       
       if (response.success) {
-        apiService.get(`send_email/vetify_email/${user.correo}`);
+        apiService.post(`emails/verification`,{
+          email : user.correo
+        });
         
       }
       return { message: response.message, type_message: response.success };

@@ -6,10 +6,11 @@ import { toast } from 'sonner'
 
 interface VerifyCodeProps {
     email: string;
+    setCodeGet: (code: string) => void;
     setStep: (step: 'email' | 'code' | 'newPassword') => void;
 }
 
-const VerifyCode = ({ email, setStep }: VerifyCodeProps) => {
+const VerifyCode = ({ email, setCodeGet ,setStep }: VerifyCodeProps) => {
     const [code, setCode] = useState(['', '', '', '', '', ''])
 
     const handleCodeChange = (index: number, value: string) => {
@@ -36,9 +37,11 @@ const VerifyCode = ({ email, setStep }: VerifyCodeProps) => {
     const verifyCode = async () => {
         const verificationCode = code.join('')
         try {
-            const response = await apiService.get(`verify/email/${email}/${verificationCode}`)
+            const response = await apiService.get(`auth/login/verifyCode/${email}/${verificationCode}`)
             console.log(response)
             if (response.success) {
+                console.log('Código verificado correctamente',  verificationCode)
+                setCodeGet(verificationCode)
                 toast.success('Código verificado correctamente')
                 setStep('newPassword')
             }

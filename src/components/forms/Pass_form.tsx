@@ -8,6 +8,7 @@ import { BarLoader } from 'react-spinners'
 import { apiService } from '@/service/apiservice'
 interface SendCodeProps {
   email: string;
+  code: string;
   setIsOpen: (isOpen: boolean) => void;
 
 }
@@ -20,7 +21,7 @@ const schemaValidate = Yup.object().shape({
 })
 
 
-export const Pass_form = ({ email, setIsOpen }: SendCodeProps) => {
+export const Pass_form = ({ email, code,setIsOpen }: SendCodeProps) => {
   const navigate = useNavigate()
 
 
@@ -32,8 +33,10 @@ export const Pass_form = ({ email, setIsOpen }: SendCodeProps) => {
       onSubmit={(values, {
         setSubmitting, resetForm
       } ) => {
-        apiService.put(`password`, {
+        console.log(code)
+        apiService.put(`user/${email}e/change-password`, {
           "correo": email,
+          "code": code.toString(),
           "nueva_contrasena": values.password
         }).then(response => {
           console.log(response)

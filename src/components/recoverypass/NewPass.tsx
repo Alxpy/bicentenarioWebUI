@@ -17,7 +17,7 @@ export const PasswordRecoveryDialog = () => {
     const [isOpen, setIsOpen] = useState(false)
     const [step, setStep] = useState<Step>('email')
     const [email, setEmail] = useState('')
-
+    const [code, setCode] = useState('')
 
 
 
@@ -29,11 +29,11 @@ export const PasswordRecoveryDialog = () => {
                 )
             case 'code':
                 return (
-                    <VerifyCode email={email} setStep={setStep} />
+                    <VerifyCode email={email} setCodeGet={setCode} setStep={setStep} />
                 )
             case 'newPassword':
                 return (
-                    <Pass_form email={email} setIsOpen={setIsOpen} />
+                    <Pass_form email={email} code={code}  setIsOpen={setIsOpen} />
                 )
         }
     }

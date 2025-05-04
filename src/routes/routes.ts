@@ -10,6 +10,7 @@ export const PublicRoutes = {
     SHOWHISTORIA:'/showhistoria',
     BIBLIOTECA : '/biblioteca',
     PRESIDENTES : '/presidentes',
+    PRESIDENTE : '/presidente/detalle',
     CULTURA : '/cultura',
 };
 

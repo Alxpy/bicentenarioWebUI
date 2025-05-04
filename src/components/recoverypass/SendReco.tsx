@@ -17,7 +17,7 @@ export const SendReco = ({ email, setEmail, setStep }: SendCodeProps) => {
     }
     const sendRecoveryEmail = async () => {
         try {
-            const response = await apiService.get(`send_email/recovery_password/${email}`)
+            const response = await apiService.post(`emails/passwordRecovery`,{email:email})
             console.log(response)
             if (response.success) {
                 toast.success(response.message)
