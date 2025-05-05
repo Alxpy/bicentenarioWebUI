@@ -3,7 +3,7 @@ import Footer from "./footerTemplate";
 import Navbar from "./Navbar";
 import { Toaster } from "@/components/ui/sonner"
 import BodyContainer from '../styles/BodyStyle';
-
+import {ChatIA} from "@/components/chat/ChatIa";
 interface MainLayoutProps {
     children: ReactNode;
 }
@@ -15,6 +15,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
             <main className="flex-grow flex items-center justify-center">
                 {children}
             </main>
+            <ChatIA />
             <Footer />
             <Toaster />
         </BodyContainer>
