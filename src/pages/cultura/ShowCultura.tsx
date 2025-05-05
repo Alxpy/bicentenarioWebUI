@@ -1,11 +1,11 @@
 import { apiService } from '@/service/apiservice'
 import React from 'react'
-import { IHistory, IUbicacion } from '@/components/interface'
+import { ICultura, IUbicacion } from '@/components/interface'
 import useLocalStorage from '@/hooks/useLocalStorage'
 import {Mapa} from '@/components/ubicacion/Mapa'
-interface IMultimediaHistoria {
+interface IMultimediacultura {
   id_multimedia: number;
-  id_historia: number;
+  id_cultura: number;
   enlace: string;
   tipo: string;
 }
@@ -18,40 +18,36 @@ interface IComentario {
 }
 
 
-export const ShowHistoria = () => {
-  const [multimedia, setMultimedia] = React.useState<IMultimediaHistoria[]>([])
+export const ShowCultura = () => {
+  const [multimedia, setMultimedia] = React.useState<IMultimediacultura[]>([])
   const [ubicacion, setUbicacion] = React.useState<IUbicacion>()
   const [comentarios, setComentarios] = React.useState<IComentario[]>([])
   const [nuevoComentario, setNuevoComentario] = React.useState('')
-  const [historia, setshowHistory] = useLocalStorage<IHistory>('showHistory',{} as IHistory)
+  const [cultura, setshowICultura] = useLocalStorage<ICultura>('selectedCultura',{} as ICultura)
 
   React.useEffect(() => {
     const fetchData = async () => {
       try {
         // Fetch multimedia
-        const multimediaResponse = await apiService.get<IMultimediaHistoria[]>(
-          `multimedia_historia/ByHistoriaId/${historia.id}`
+        const multimediaResponse = await apiService.get<IMultimediacultura[]>(
+          `multimedia_cultura/byCulturaId/${cultura.id}`
         )
         setMultimedia(multimediaResponse.data)
 
         // Fetch ubicación
         const ubicacionResponse = await apiService.get<IUbicacion>(
-          `location/${historia.id_ubicacion}`
+          `location/${cultura.id_ubicacion}`
         )
         setUbicacion(ubicacionResponse.data)
 
-        // Fetch comentarios (simulado)
-        const comentariosResponse = await apiService.get<IComentario[]>(
-          `comentarios/historia/${historia.id}`
-        )
-        setComentarios(comentariosResponse.data)
+        
       } catch (error) {
         console.error('Error fetching data:', error)
       }
     }
 
     fetchData()
-  }, [historia.id])
+  }, [cultura.id])
 
   const handleSubmitComentario = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -61,7 +57,7 @@ export const ShowHistoria = () => {
       // Simular envío de comentario
       const response = await apiService.post<IComentario>('comentarios', {
         contenido: nuevoComentario,
-        historiaId: historia.id,
+        culturaId: cultura.id,
         usuario: "Usuario Actual" // Reemplazar con usuario real
       })
       
@@ -76,28 +72,21 @@ export const ShowHistoria = () => {
     <div className="max-w-4xl mx-auto p-4 space-y-6">
       {/* Encabezado */}
       <div className="space-y-2">
-        <h1 className="text-3xl font-bold">{historia.titulo}</h1>
-        <div className="flex gap-4 text-gray-600 dark:text-gray-400">
-          <span>
-            {new Date(historia.fecha_inicio).toLocaleDateString()} -{' '}
-            {new Date(historia.fecha_fin).toLocaleDateString()}
-          </span>
-          <span>•</span>
-          <span>{historia.nombre_categoria}</span>
-        </div>
+        <h1 className="text-3xl font-bold">{cultura.nombre}</h1>
+        
       </div>
 
       {/* Imagen principal */}
-      {historia.imagen && (
+      {cultura.imagen && (
         <img
-          src={historia.imagen}
-          alt={historia.titulo}
+          src={cultura.imagen}
+          alt={cultura.nombre}
           className="w-full h-64 object-cover rounded-lg"
         />
       )}
 
       {/* Descripción */}
-      <p className="text-lg leading-relaxed">{historia.descripcion}</p>
+      <p className="text-lg leading-relaxed">{cultura.descripcion}</p>
 
       {/* Multimedia */}
       {multimedia.length > 0 && (

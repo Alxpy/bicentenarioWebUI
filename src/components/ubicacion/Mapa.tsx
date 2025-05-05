@@ -1,5 +1,6 @@
 import { GoogleMap, Marker, useJsApiLoader } from '@react-google-maps/api'
 import { IUbicacion } from '../interface'
+import { mapConfig } from '../../config/map'
 
 const containerStyle = {
   width: '100%',
@@ -12,8 +13,10 @@ interface Props {
 
 export const Mapa = ({ ubicacion }: Props) => {
   const { isLoaded } = useJsApiLoader({
-    googleMapsApiKey: import.meta.env.VITE_BASE_MAPS_API_KEY as string,
-    libraries: ['places']
+    googleMapsApiKey: mapConfig.googleMapsApiKey,
+    libraries: mapConfig.libraries,
+    id: mapConfig.id,
+    version: mapConfig.version
   })
 
   const center = {
@@ -27,6 +30,7 @@ export const Mapa = ({ ubicacion }: Props) => {
         mapContainerStyle={containerStyle}
         center={center}
         zoom={15}
+        key={`map-${ubicacion.id}`}
       >
         <Marker 
           position={center}

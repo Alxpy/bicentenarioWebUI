@@ -1,6 +1,7 @@
 import { GoogleMap, Marker, useJsApiLoader } from '@react-google-maps/api'
 import { IUbicacionGeneral } from '../interface'
-
+import { useCallback, useRef } from 'react'
+import { mapConfig } from '../../config/map'
 const containerStyle = {
   width: '100%',
   height: '400px'
@@ -8,21 +9,23 @@ const containerStyle = {
 
 interface Props {
   ubicaciones: IUbicacionGeneral[]
+  onClick?: (id: number) => void
 }
 
-export const MapaMultiple = ({ ubicaciones }: Props) => {
+const libraries: ("places" | "geometry")[] = ['places', 'geometry']
+
+export const MapaMultiple = ({ ubicaciones, onClick }: Props) => {
+  const mapRef = useRef<google.maps.Map | null>(null)
+  
   const { isLoaded } = useJsApiLoader({
-    googleMapsApiKey: import.meta.env.VITE_BASE_MAPS_API_KEY as string,
-    libraries: ['places', 'geometry']
+    googleMapsApiKey: mapConfig.googleMapsApiKey,
+    libraries: mapConfig.libraries,
+    id: mapConfig.id,
+    version: mapConfig.version
   })
 
-  const mapOptions = {
-    disableDefaultUI: true,
-    zoomControl: true,
-    styles: [] as google.maps.MapTypeStyle[]
-  }
-
-  const getBounds = () => {
+  const onLoad = useCallback((map: google.maps.Map) => {
+    mapRef.current = map
     const bounds = new window.google.maps.LatLngBounds()
     ubicaciones.forEach(ubicacion => {
       bounds.extend({
@@ -30,24 +33,17 @@ export const MapaMultiple = ({ ubicaciones }: Props) => {
         lng: Number(ubicacion.longitud)
       })
     })
-    return bounds
-  }
+    map.fitBounds(bounds)
+  }, [ubicaciones])
 
   return isLoaded ? (
     <div className="rounded-lg overflow-hidden shadow-lg">
       <GoogleMap
         mapContainerStyle={containerStyle}
-        options={mapOptions}
-        zoom={10}
-        onLoad={map => {
-          if (ubicaciones.length > 0) {
-            const bounds = getBounds()
-            map.fitBounds(bounds)
-            
-            if (ubicaciones.length > 1) {
-              map.panBy(0, -50)
-            }
-          }
+        onLoad={onLoad}
+        options={{
+          disableDefaultUI: true,
+          zoomControl: true
         }}
       >
         {ubicaciones.map((ubicacion, index) => (
@@ -58,6 +54,7 @@ export const MapaMultiple = ({ ubicaciones }: Props) => {
               lng: Number(ubicacion.longitud)
             }}
             title={ubicacion.nombre}
+            onClick={() => onClick?.(ubicacion.id)}
             label={{
               text: (index + 1).toString(),
               color: '#FFFFFF',
@@ -72,7 +69,7 @@ export const MapaMultiple = ({ ubicaciones }: Props) => {
       </GoogleMap>
     </div>
   ) : (
-    <div className="h-[400px] bg-gray-200 flex items-center justify-center rounded-lg">
+    <div className="h-[400px] bg-gray-100 flex items-center justify-center rounded-lg">
       Cargando mapa...
     </div>
   )

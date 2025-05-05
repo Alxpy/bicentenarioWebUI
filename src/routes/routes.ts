@@ -12,6 +12,7 @@ export const PublicRoutes = {
     PRESIDENTES : '/presidentes',
     PRESIDENTE : '/presidente/detalle',
     CULTURA : '/cultura',
+    CULTURA_ID : '/cultura/:id',
 };
 
 export const PrivateRoutes = {

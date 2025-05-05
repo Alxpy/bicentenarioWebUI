@@ -18,6 +18,7 @@ export const Cultura = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [selectedCultura, setSelectedCultura] = useLocalStorage<ICultura | null>('selectedCultura', null)
+  const [mapKey, setMapKey] = useState(Date.now())
 
   useEffect(() => {
     const fetchCulturas = async () => {
@@ -34,6 +35,10 @@ export const Cultura = () => {
       }
     }
     fetchCulturas()
+    return () => {
+      // Resetear el mapa al desmontar
+      setMapKey(Date.now())
+    }
   }, [])
 
   const filteredCulturas = culturas.filter(cultura => 
@@ -45,8 +50,19 @@ export const Cultura = () => {
     id: cultura.id,
     nombre: cultura.nombre,
     latitud: cultura.latitud,
-    longitud: cultura.longitud
+    longitud: cultura.longitud,
+    id_x: cultura.id
   }))
+
+
+  const onClickMarkerMap = async (id: number) => {
+    const cultura = culturas.find(c => c.id === id)
+    if (cultura) {
+      await setSelectedCultura(cultura)
+      await navigate(`/cultura/${id}`)
+    }
+  }
+
 
   return (
     <MainLayout>
@@ -71,7 +87,7 @@ export const Cultura = () => {
               <FiSearch className="absolute left-3 top-3 h-4 w-4 text-slate-500" />
               <Input
                 placeholder="Buscar etnias..."
-                className="pl-9 bg-white/90"
+                className="pl-9 text-slate-800 bg-white/90"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -123,9 +139,9 @@ export const Cultura = () => {
                           variant="outline" 
                           size="sm"
                           className="gap-2 text-blue-800"
-                          onClick={() => {
-                            setSelectedCultura(cultura)
-                            navigate(`/cultura/${cultura.id}`)
+                          onClick={ async () => {
+                            await setSelectedCultura(cultura)
+                            await navigate(`/cultura/${cultura.id}`)
                           }}
                         >
                           Ver más
@@ -166,7 +182,7 @@ export const Cultura = () => {
                 <p className="text-red-500">{error}</p>
               </div>
             ) : (
-              <MapaMultiple ubicaciones={ubicaciones} />
+              <MapaMultiple ubicaciones={ubicaciones}  onClick={onClickMarkerMap} />
             )}
           </div>
         </div>
