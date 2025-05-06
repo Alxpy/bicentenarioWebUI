@@ -10,6 +10,9 @@ import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 
+import { DialogAdd } from './DialogAdd';
+
+
 export const Evento = () => {
     const [eventos, setEventos] = useState<iEvento[]>([]);
     const [loading, setLoading] = useState(false);
@@ -205,6 +208,14 @@ export const Evento = () => {
                     )}
                 </div>
             </div>
+
+            {openCreate && (
+                <DialogAdd
+                    open={openCreate}
+                    onClose={() => setOpenCreate(false)}
+                    onSuccess={fetchEventos}
+                />
+            )}
         </RoleLayout>
     )
 }
