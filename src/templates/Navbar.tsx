@@ -146,7 +146,7 @@ const Navbar = () => {
             </NavigationMenuLink>
           </NavigationMenuItem>
           <NavigationMenuItem>
-            <NavigationMenuLink href={PublicRoutes.HOME} className=" ">
+            <NavigationMenuLink href={PublicRoutes.EVENTOS} className=" ">
               Eventos
             </NavigationMenuLink>
           </NavigationMenuItem>

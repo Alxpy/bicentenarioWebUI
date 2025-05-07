@@ -1,0 +1,230 @@
+import React from 'react';
+import { iEvento, iPatrocinador, IUbicacion } from '@/components/interface';
+import useLocalStorage from '@/hooks/useLocalStorage';
+import { Mapa } from '@/components/ubicacion/Mapa';
+import { apiService } from '@/service/apiservice';
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { CalendarDays, MapPin, User, Users, MessageCircle } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Textarea } from '@/components/ui/textarea';
+import { Button } from '@/components/ui/button';
+import MainLayout from '@/templates/MainLayout';
+
+interface IComentario {
+    id: number;
+    contenido: string;
+    fecha: string;
+    usuario: string;
+}
+
+export const ShowEvento = () => {
+    const [evento, setEvento] = useLocalStorage<iEvento>('selectedEvento', {} as iEvento);
+    const [ubicacion, setUbicacion] = React.useState<IUbicacion>();
+    const [patrocinadores, setPatrocinadores] = React.useState<iPatrocinador[]>([]);
+    const [comentarios, setComentarios] = React.useState<IComentario[]>([]);
+    const [nuevoComentario, setNuevoComentario] = React.useState('');
+
+    const formatDateToDDMMYYYY = (isoDate: string): string => {
+        if (!isoDate) return '';
+
+        const date = new Date(isoDate);
+        if (isNaN(date.getTime())) return isoDate;
+
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+
+        return `${day}/${month}/${year}`;
+    }
+
+    const fetchData = async () => {
+        try {
+            const ubicacionResponse = await apiService.get<IUbicacion>(`location/${evento.id_ubicacion}`);
+            setUbicacion(ubicacionResponse.data);
+
+            const patrocinadoresResponse = await apiService.get(`patrocinador_evento/evento/${evento.id}`);
+            setPatrocinadores(patrocinadoresResponse.data);
+
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+    };
+
+    React.useEffect(() => {
+        if (evento?.id) {
+            fetchData();
+        }
+    }, [evento]);
+
+    if (!evento?.id) return (
+        <MainLayout>
+            <div className="p-4 text-center w-full">Selecciona un evento para ver los detalles</div>
+        </MainLayout>
+    );
+
+    return (
+        <MainLayout>
+            <div className="w-full px-4 py-6 max-w-7xl mx-auto space-y-8">
+               
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                
+                    <div className="lg:col-span-2">
+                        <div className="relative aspect-video overflow-hidden rounded-xl shadow-lg">
+                            <img
+                                src={evento.imagen || '/placeholder-event.jpg'}
+                                alt={evento.nombre}
+                                className="object-cover w-full h-full"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="space-y-6">
+                        <div>
+                            <h1 className="text-3xl font-bold">{evento.nombre}</h1>
+                            <div className="flex items-center gap-2 mt-2 text-muted-foreground">
+                                <Users className="h-4 w-4" />
+                                <span>Organizado por {evento.nombre_organizador}</span>
+                            </div>
+                        </div>
+
+                        <Card className="border-none shadow-sm">
+                            <CardContent className="p-6 space-y-4">
+                                <div className="flex items-start gap-4">
+                                    <CalendarDays className="h-5 w-5 mt-0.5 text-primary" />
+                                    <div>
+                                        <p className="font-medium">Fecha</p>
+                                        <p className="text-sm text-muted-foreground">
+                                            {formatDateToDDMMYYYY(evento.fecha_inicio)} - {formatDateToDDMMYYYY(evento.fecha_fin)}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-start gap-4">
+                                    <MapPin className="h-5 w-5 mt-0.5 text-primary" />
+                                    <div>
+                                        <p className="font-medium">Ubicación</p>
+                                        <p className="text-sm text-muted-foreground">{evento.nombre_ubicacion}</p>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-start gap-4">
+                                    <User className="h-5 w-5 mt-0.5 text-primary" />
+                                    <div>
+                                        <p className="font-medium">Responsable</p>
+                                        <p className="text-sm text-muted-foreground">{evento.nombre_usuario}</p>
+                                    </div>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    
+                    <div className="lg:col-span-2">
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Acerca del Evento</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <p className="text-muted-foreground">{evento.descripcion}</p>
+                            </CardContent>
+                        </Card>
+                    </div>
+
+                    <div>
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Ubicación</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                {ubicacion && (
+                                    <div className="h-64 rounded-lg overflow-hidden">
+                                        <Mapa ubicacion={ubicacion} key={`map-${ubicacion.id}`} />
+                                    </div>
+                                )}
+                                <p className="mt-2 text-sm text-muted-foreground">{ubicacion?.nombre || 'Cargando ubicación...'}</p>
+                            </CardContent>
+                        </Card>
+                    </div>
+                </div>
+
+                {patrocinadores.length > 0 && (
+                    <div className="space-y-4">
+                        <h2 className="text-2xl font-bold">Patrocinadores</h2>
+                        <Carousel className="w-full">
+                            <CarouselContent>
+                                {patrocinadores.map((patrocinador) => (
+                                    <CarouselItem key={patrocinador.id} className="sm:basis-1/2 md:basis-1/3 lg:basis-1/4">
+                                        <div className="p-2">
+                                            <Card className="h-full transition-all hover:shadow-md">
+                                                <CardContent className="flex flex-col items-center p-6 gap-4">
+                                                    <Avatar className="h-20 w-20">
+                                                        <AvatarImage src={patrocinador.imagen} />
+                                                        <AvatarFallback>{patrocinador.nombre.charAt(0)}</AvatarFallback>
+                                                    </Avatar>
+                                                    <div className="text-center space-y-1">
+                                                        <p className="font-medium">{patrocinador.nombre}</p>
+                                                        <p className="text-sm text-muted-foreground">{patrocinador.contacto}</p>
+                                                    </div>
+                                                </CardContent>
+                                            </Card>
+                                        </div>
+                                    </CarouselItem>
+                                ))}
+                            </CarouselContent>
+                            <CarouselPrevious className="hidden sm:flex" />
+                            <CarouselNext className="hidden sm:flex" />
+                        </Carousel>
+                    </div>
+                )}
+
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div className="lg:col-span-2">
+                        <Card>
+                            <CardHeader>
+                                <CardTitle className="flex items-center gap-2">
+                                    <MessageCircle className="h-5 w-5" /> Comentarios
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                <form className="space-y-4">
+                                    <Textarea
+                                        value={nuevoComentario}
+                                        onChange={(e) => setNuevoComentario(e.target.value)}
+                                        placeholder="Escribe tu comentario..."
+                                        className="min-h-[100px]"
+                                    />
+                                    <Button type="submit" className="w-full sm:w-auto">
+                                        Publicar comentario
+                                    </Button>
+                                </form>
+
+                                <div className="space-y-4">
+                                    {comentarios.length > 0 ? (
+                                        comentarios.map((comentario) => (
+                                            <Card key={comentario.id} className="border-none shadow-sm">
+                                                <CardContent className="p-4">
+                                                    <div className="flex justify-between items-center mb-2">
+                                                        <span className="font-medium">{comentario.usuario}</span>
+                                                        <span className="text-sm text-muted-foreground">
+                                                            {new Date(comentario.fecha).toLocaleDateString()}
+                                                        </span>
+                                                    </div>
+                                                    <p className="text-sm text-muted-foreground">{comentario.contenido}</p>
+                                                </CardContent>
+                                            </Card>
+                                        ))
+                                    ) : (
+                                        <p className="text-sm text-muted-foreground text-center py-4">No hay comentarios aún</p>
+                                    )}
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </div>
+                </div>
+            </div>
+        </MainLayout>
+    );
+};

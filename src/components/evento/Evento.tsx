@@ -11,6 +11,7 @@ import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 
 import { DialogAdd } from './DialogAdd';
+import { DialogEdit } from './DialogEdit';
 
 
 export const Evento = () => {
@@ -213,6 +214,14 @@ export const Evento = () => {
                 <DialogAdd
                     open={openCreate}
                     onClose={() => setOpenCreate(false)}
+                    onSuccess={fetchEventos}
+                />
+            )}
+            {openEdit && selectedEvento && (
+                <DialogEdit
+                    open={openEdit}
+                    onClose={() => setOpenEdit(false)}
+                    evento={selectedEvento}
                     onSuccess={fetchEventos}
                 />
             )}

@@ -23,6 +23,7 @@ const formSchema = z.object({
     id_ubicacion: z.number().optional(),
     id_usuario: z.number().optional(),
     id_organizador: z.number().optional(),
+    patrocinadores: z.array(z.number()).optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -34,6 +35,10 @@ interface FormEventoProps {
     onCancel?: () => void;
 }
 
+interface iTipoEvento {
+    id: number;
+    nombre_evento: string
+}
 
 export const FormEvento = ({ initialData, setCreateUbi, onSuccess, onCancel }: FormEventoProps) => {
     const [imageMode, setImageMode] = useState<'url' | 'upload'>('url');
@@ -43,6 +48,7 @@ export const FormEvento = ({ initialData, setCreateUbi, onSuccess, onCancel }: F
     const [patrocinadores, setPatrocinadores] = useState<iPatrocinador[]>([]);
     const [organizadores, setOrganizadores] = useState<iUser[]>([]);
     const [usuarios, setUsuarios] = useState<iUser[]>([]);
+    const [tipoEventos, setTipoEventos] = useState<iTipoEvento[]>([]);
 
     const form = useForm<FormValues>({
         resolver: zodResolver(formSchema),
@@ -56,6 +62,7 @@ export const FormEvento = ({ initialData, setCreateUbi, onSuccess, onCancel }: F
             id_ubicacion: 0,
             id_usuario: 0,
             id_organizador: 0,
+            patrocinadores: [],
         }
     });
 
@@ -72,6 +79,7 @@ export const FormEvento = ({ initialData, setCreateUbi, onSuccess, onCancel }: F
         });
         handleOrganizadores();
         handleUsuarios();
+        handleTipoEventos();
     }, []);
 
     const handlePatrocinadores = async () => {
@@ -86,6 +94,12 @@ export const FormEvento = ({ initialData, setCreateUbi, onSuccess, onCancel }: F
         const data: iUser[] = response.data;
         setOrganizadores(data);
 
+    }
+
+    const handleTipoEventos = async () => {
+        const response = await apiService.get('tipo_evento');
+        const data: iTipoEvento[] = response.data;
+        setTipoEventos(data);
     }
 
     const handleUsuarios = async () => {
@@ -106,6 +120,7 @@ export const FormEvento = ({ initialData, setCreateUbi, onSuccess, onCancel }: F
         }
     };
 
+
     const uploadImage = async (file: File) => {
         const formData = new FormData();
         formData.append('file', file);
@@ -118,6 +133,18 @@ export const FormEvento = ({ initialData, setCreateUbi, onSuccess, onCancel }: F
             throw error;
         }
     };
+    const formatDateToDDMMYYYY = (isoDate: string): string => {
+        if (!isoDate) return '';
+
+        const date = new Date(isoDate);
+        if (isNaN(date.getTime())) return isoDate; // Si la fecha no es válida, devuelve el valor original
+
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+
+        return `${day} ${month} ${year}`;
+    }
 
     const handleSubmit = async (values: FormValues) => {
         try {
@@ -154,58 +181,159 @@ export const FormEvento = ({ initialData, setCreateUbi, onSuccess, onCancel }: F
 
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-                <FormField
-                    control={form.control}
-                    name="nombre"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Nombre del Evento</FormLabel>
-                            <FormControl>
-                                <Input
-                                    placeholder="Ej: ...."
-                                    {...field}
+            <form onSubmit={form.handleSubmit(handleSubmit)} className="overflow-y-auto max-h-[80vh] pr-2 space-y-3">
+                {/* Sección Principal */}
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                    {/* Nombre del Evento */}
+                    <FormField
+                        control={form.control}
+                        name="nombre"
+                        render={({ field }) => (
+                            <FormItem className="space-y-2">
+                                <FormLabel className="text-base">Nombre del Evento</FormLabel>
+                                <FormControl>
+                                    <Input
+                                        placeholder="Ej: Festival Cultural Andino"
+                                        {...field}
+                                        disabled={isSubmitting}
+                                        className="rounded-lg bg-muted/50"
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+
+                    {/* Organizador */}
+                    <FormField
+                        control={form.control}
+                        name="id_organizador"
+                        render={({ field }) => (
+                            <FormItem className="space-y-2">
+                                <FormLabel className="text-base">Organizador</FormLabel>
+                                <Select
+                                    onValueChange={(value) => field.onChange(Number(value))}
+                                    value={field.value?.toString()}
                                     disabled={isSubmitting}
-                                />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
+                                >
+                                    <FormControl>
+                                        <SelectTrigger className="rounded-lg">
+                                            <SelectValue placeholder="Selecciona un organizador" />
+                                        </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent className="rounded-lg">
+                                        {organizadores.map((organizador) => (
+                                            <SelectItem
+                                                value={organizador.id.toString()}
+                                                className="focus:bg-accent/50"
+                                            >
+                                                {organizador.nombre}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                </div>
+
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                    {/* Fecha de Inicio */}
+                    <FormField
+                        control={form.control}
+                        name="fecha_inicio"
+                        render={({ field }) => (
+                            <FormItem className="space-y-2">
+                                <FormLabel className="text-base">Fecha de Inicio</FormLabel>
+                                <FormControl>
+                                    <div className="flex items-center gap-2">
+                                        <Input
+                                            type="date"
+                                            {...field}
+                                            disabled={isSubmitting}
+                                            className="rounded-lg bg-muted/50 flex-1"
+                                            value={field.value?.split('T')[0] || ''}
+                                            onChange={(e) => {
+                                                const date = e.target.value;
+                                                field.onChange(date ? `${date}T00:00:00` : '');
+                                            }}
+                                        />
+                                        
+                                    </div>
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+
+                    {/* Fecha de Fin */}
+                    <FormField
+                        control={form.control}
+                        name="fecha_fin"
+                        render={({ field }) => (
+                            <FormItem className="space-y-2">
+                                <FormLabel className="text-base">Fecha de Fin</FormLabel>
+                                <FormControl>
+                                    <div className="flex items-center gap-2">
+                                        <Input
+                                            type="date"
+                                            {...field}
+                                            disabled={isSubmitting}
+                                            className="rounded-lg bg-muted/50 flex-1"
+                                            value={field.value?.split('T')[0] || ''}
+                                            onChange={(e) => {
+                                                const date = e.target.value;
+                                                field.onChange(date ? `${date}T23:59:59` : '');
+                                            }}
+                                        />
+                                    </div>
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                </div>
+
+
+                {/* Descripción */}
                 <FormField
                     control={form.control}
                     name="descripcion"
                     render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Descripción</FormLabel>
+                        <FormItem className="space-y-2">
+                            <FormLabel className="text-base">Descripción</FormLabel>
                             <FormControl>
-                                <Input
+                                <textarea
                                     placeholder="Descripción detallada de la cultura..."
                                     {...field}
                                     disabled={isSubmitting}
+                                    className="flex h-32 w-full rounded-lg border bg-muted/50 px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                                 />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
                     )}
                 />
-                <div className="space-y-4">
+
+                {/* Sección de Imagen */}
+                <div className="space-y-4 rounded-lg border bg-muted/20 p-6">
                     <div className="flex gap-3">
                         <Button
                             type="button"
                             variant={imageMode === 'url' ? 'default' : 'outline'}
                             onClick={() => setImageMode('url')}
-                            className="flex-1"
+                            className="flex-1 rounded-lg"
                         >
-                            Usar URL
+                            🖼️ Usar URL
                         </Button>
                         <Button
                             type="button"
                             variant={imageMode === 'upload' ? 'default' : 'outline'}
                             onClick={() => setImageMode('upload')}
-                            className="flex-1"
+                            className="flex-1 rounded-lg"
                         >
-                            Subir Imagen
+                            📤 Subir Imagen
                         </Button>
                     </div>
 
@@ -214,7 +342,7 @@ export const FormEvento = ({ initialData, setCreateUbi, onSuccess, onCancel }: F
                             control={form.control}
                             name="imagen"
                             render={({ field }) => (
-                                <FormItem>
+                                <FormItem className="space-y-2">
                                     <FormLabel>URL de la Imagen</FormLabel>
                                     <FormControl>
                                         <Input
@@ -225,6 +353,7 @@ export const FormEvento = ({ initialData, setCreateUbi, onSuccess, onCancel }: F
                                                 field.onChange(e);
                                                 setPreviewUrl(e.target.value);
                                             }}
+                                            className="rounded-lg bg-muted/50"
                                         />
                                     </FormControl>
                                     <FormMessage />
@@ -234,7 +363,7 @@ export const FormEvento = ({ initialData, setCreateUbi, onSuccess, onCancel }: F
                     )}
 
                     {imageMode === 'upload' && (
-                        <FormItem>
+                        <FormItem className="space-y-2">
                             <FormLabel>Subir Imagen</FormLabel>
                             <FormControl>
                                 <Input
@@ -242,75 +371,51 @@ export const FormEvento = ({ initialData, setCreateUbi, onSuccess, onCancel }: F
                                     accept="image/*"
                                     onChange={handleFileChange}
                                     disabled={isSubmitting}
-                                    className="cursor-pointer"
+                                    className="cursor-pointer rounded-lg border bg-muted/50 file:mr-4 file:rounded-lg file:border-0 file:bg-accent file:px-4 file:py-2 file:text-accent-foreground"
                                 />
                             </FormControl>
-                            <FormMessage>
-                                {form.formState.errors.imagen?.message}
-                            </FormMessage>
+                            <FormMessage>{form.formState.errors.imagen?.message}</FormMessage>
                         </FormItem>
                     )}
 
                     {previewUrl && (
-                        <div className="mt-4 border rounded-lg p-2">
-                            <p className="text-sm font-medium mb-2">Vista previa:</p>
-                            <img
-                                src={previewUrl}
-                                alt="Previsualización"
-                                className="rounded-md object-contain max-h-48 w-full"
-                            />
+                        <div className="mt-4 space-y-2">
+                            <p className="text-sm font-medium text-muted-foreground">Vista previa:</p>
+                            <div className="relative aspect-video overflow-hidden rounded-lg border">
+                                <img
+                                    src={previewUrl}
+                                    alt="Previsualización"
+                                    className="h-full w-full object-cover"
+                                />
+                            </div>
                         </div>
                     )}
                 </div>
-                <FormField
-                    control={form.control}
-                    name="id_organizador"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Organizador</FormLabel>
-                            <Select
-                                onValueChange={(value) => field.onChange(Number(value))}
-                                value={field.value?.toString()}
-                                disabled={isSubmitting}
-                            >
-                                <FormControl>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Selecciona un organizador" />
-                                    </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                    {organizadores.map((organizador) => (
-                                        <SelectItem key={organizador.id} value={organizador.id.toString()}>
-                                            {organizador.nombre}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
 
-                {/* Select para Usuario */}
+                {/* Usuario Responsable */}
                 <FormField
                     control={form.control}
                     name="id_usuario"
                     render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Usuario Responsable</FormLabel>
+                        <FormItem className="space-y-2">
+                            <FormLabel className="text-base">Usuario Responsable</FormLabel>
                             <Select
                                 onValueChange={(value) => field.onChange(Number(value))}
                                 value={field.value?.toString()}
                                 disabled={isSubmitting}
                             >
                                 <FormControl>
-                                    <SelectTrigger>
+                                    <SelectTrigger className="rounded-lg">
                                         <SelectValue placeholder="Selecciona un usuario" />
                                     </SelectTrigger>
                                 </FormControl>
-                                <SelectContent>
+                                <SelectContent className="rounded-lg">
                                     {usuarios.map((usuario) => (
-                                        <SelectItem key={usuario.id} value={usuario.id.toString()}>
+                                        <SelectItem
+                                            key={usuario.id}
+                                            value={usuario.id.toString()}
+                                            className="focus:bg-accent/50"
+                                        >
                                             {usuario.nombre}
                                         </SelectItem>
                                     ))}
@@ -321,22 +426,63 @@ export const FormEvento = ({ initialData, setCreateUbi, onSuccess, onCancel }: F
                     )}
                 />
 
-                {/* Select múltiple para Patrocinadores */}
+
+                {/* Tipo de Evento */}
+                <FormField
+                    control={form.control}
+                    name="id_tipo_evento"
+                    render={({ field }) => (
+
+                        <FormItem className="space-y-2">
+                            <FormLabel className="text-base">Tipo de Evento</FormLabel>
+                            <Select
+                                onValueChange={(value) => field.onChange(Number(value))}
+                                value={field.value?.toString()}
+                                disabled={isSubmitting}
+                            >
+                                <FormControl>
+                                    <SelectTrigger className="rounded-lg">
+                                        <SelectValue placeholder="Selecciona un tipo de evento" />
+                                    </SelectTrigger>
+                                </FormControl>
+                                <SelectContent className="rounded-lg">
+                                    {tipoEventos.map((tipo_evento) => (
+                                        <SelectItem
+                                            key={tipo_evento.id}
+                                            value={tipo_evento.id.toString()}
+                                            className="focus:bg-accent/50"
+                                        >
+                                            {tipo_evento.nombre_evento}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                            <FormMessage />
+                        </FormItem>
+
+
+                    )}
+                />
+
+                {/* Patrocinadores */}
                 <FormField
                     control={form.control}
                     name="patrocinadores"
                     render={({ field }) => (
-                        <FormItem>
-                            <FormLabel className="text-lg font-semibold">Patrocinadores</FormLabel>
+                        <FormItem className="space-y-2">
+                            <FormLabel className="text-base">Patrocinadores</FormLabel>
                             <FormControl>
-                                <div className="space-y-3 bg-gray-800 p-4 rounded-md border">
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                <div className="space-y-4 rounded-lg border bg-muted/20 p-6">
+                                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                                         {patrocinadores.map((patrocinador) => {
                                             const isChecked = field.value?.includes(patrocinador.id);
                                             return (
                                                 <label
                                                     key={patrocinador.id}
-                                                    className="flex items-center space-x-2 p-2 rounded-md hover:bg-gray-100 transition"
+                                                    className={`flex items-center space-x-3 rounded-lg border p-4 transition-colors ${isChecked
+                                                        ? 'border-primary bg-primary/10'
+                                                        : 'hover:bg-muted/30'
+                                                        }`}
                                                 >
                                                     <input
                                                         type="checkbox"
@@ -356,7 +502,7 @@ export const FormEvento = ({ initialData, setCreateUbi, onSuccess, onCancel }: F
                                                             field.onChange(newValue);
                                                         }}
                                                         disabled={isSubmitting}
-                                                        className="accent-blue-600"
+                                                        className="h-4 w-4 rounded border accent-primary"
                                                     />
                                                     <span className="text-sm">{patrocinador.nombre}</span>
                                                 </label>
@@ -364,16 +510,14 @@ export const FormEvento = ({ initialData, setCreateUbi, onSuccess, onCancel }: F
                                         })}
                                     </div>
 
-                                    <button
+                                    <Button
                                         type="button"
-                                        onClick={() => {
-                                            // Aquí llamas a tu función para abrir el diálogo
-                                            console.log("Abrir diálogo para registrar patrocinador");
-                                        }}
-                                        className="mt-2 inline-block px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded hover:bg-blue-700 transition"
+                                        variant="outline"
+                                        onClick={() => console.log("Abrir diálogo")}
+                                        className="w-full rounded-lg"
                                     >
-                                        Registrar nuevo patrocinador
-                                    </button>
+                                        ＋ Registrar nuevo patrocinador
+                                    </Button>
                                 </div>
                             </FormControl>
                             <FormMessage />
@@ -381,23 +525,23 @@ export const FormEvento = ({ initialData, setCreateUbi, onSuccess, onCancel }: F
                     )}
                 />
 
-
-                <div className="flex justify-end gap-3">
+                {/* Acciones */}
+                <div className="flex justify-end gap-4 pt-6">
                     {onCancel && (
                         <Button
                             type="button"
                             variant="outline"
                             onClick={onCancel}
                             disabled={isSubmitting}
+                            className="rounded-lg px-6"
                         >
                             Cancelar
                         </Button>
                     )}
-
                     <Button
                         type="submit"
                         disabled={isSubmitting}
-                        className="bg-amber-600 hover:bg-amber-700"
+                        className="rounded-lg bg-amber-600 px-6 hover:bg-amber-700"
                     >
                         {isSubmitting ? (
                             <span className="flex items-center gap-2">
@@ -411,7 +555,6 @@ export const FormEvento = ({ initialData, setCreateUbi, onSuccess, onCancel }: F
                         )}
                     </Button>
                 </div>
-
             </form>
         </Form>
     )
