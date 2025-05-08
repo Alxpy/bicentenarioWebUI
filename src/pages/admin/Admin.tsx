@@ -10,7 +10,7 @@ import { GesPresidente } from '@/components/presidente/GesPresidente'
 import { Noticias } from '@/components/noticias/Noticias'
 import { Cultura } from '@/components/cultura/Cultura'
 import { Evento} from '@/components/evento/Evento'
-
+import { Comentarios } from '@/components/coments/Comentarios'
 export const Admin = () => {
 
   return (
@@ -27,6 +27,8 @@ export const Admin = () => {
             <Route path={PrivateRoutesAdmin.NEWS} element={<Noticias/>}/>
             <Route path={PrivateRoutesAdmin.CULTURA} element={<Cultura/>}/>
             <Route path={PrivateRoutesAdmin.EVENTS} element={<Evento/>}/>
+            <Route path={PrivateRoutesAdmin.COMENTARIOS} element={<Comentarios/>}/>
+
     </RoutesNotFound>
   )
 }

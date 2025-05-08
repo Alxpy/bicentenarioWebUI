@@ -5,6 +5,16 @@ export interface IComentario {
     fecha_creacion: string
 }
 
+export interface IComentarioGen{
+    id: number
+    id_usuario: number
+    nombre: string
+    apellidoPaterno: string
+    apellidoMaterno: string
+    contenido: string
+    fecha_creacion: string
+}
+
 export interface IComentarioResponse {
     id_comentario: number
     id_evento: number
