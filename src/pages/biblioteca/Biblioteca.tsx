@@ -3,7 +3,8 @@ import { apiService } from '@/service/apiservice'
 import { ILibro } from '@/components/interface'
 import MainLayout from '@/templates/MainLayout'
 import { Button } from '@/components/ui'
-
+import useLocalStorage from '@/hooks/useLocalStorage'
+import { useNavigate } from 'react-router-dom'
 interface DocumentType {
   id: number
   tipo: string
@@ -15,6 +16,8 @@ export const Biblioteca = () => {
   const [searchQuery, setSearchQuery] = React.useState('')
   const [selectedType, setSelectedType] = React.useState<number | 'all'>('all')
   const [loading, setLoading] = React.useState(true)
+  const [showLibro, setShowLibro] = useLocalStorage<ILibro | null>('showLibro', null)
+  const navigate = useNavigate()
 
   React.useEffect(() => {
     const fetchData = async () => {
@@ -108,16 +111,15 @@ export const Biblioteca = () => {
                   </div>
                   
                   <div className="card-actions justify-end mt-4">
-                    <a 
-                      href={libro.enlace} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="w-full"
-                    >
-                      <Button className="w-full">
+                   
+                      <Button className="w-full"
+                        onClick={() => {
+                          setShowLibro(libro)
+                          navigate('/showlibro')
+                        }}
+                      >
                         Ver Libro
                       </Button>
-                    </a>
                   </div>
                 </div>
               </div>

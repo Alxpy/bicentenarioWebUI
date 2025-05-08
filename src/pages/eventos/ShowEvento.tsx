@@ -1,5 +1,5 @@
 import React from 'react';
-import { iEvento, iPatrocinador, IUbicacion } from '@/components/interface';
+import { iEvento, iPatrocinador, IUbicacion, IComentario,  IComentarioEve,IComentarioResponse ,iUser, ICreateComentarioBlb, IComentarioBlb  } from '@/components/interface';
 import useLocalStorage from '@/hooks/useLocalStorage';
 import { Mapa } from '@/components/ubicacion/Mapa';
 import { apiService } from '@/service/apiservice';
@@ -11,19 +11,14 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import MainLayout from '@/templates/MainLayout';
 
-interface IComentario {
-    id: number;
-    contenido: string;
-    fecha: string;
-    usuario: string;
-}
 
 export const ShowEvento = () => {
     const [evento, setEvento] = useLocalStorage<iEvento>('selectedEvento', {} as iEvento);
     const [ubicacion, setUbicacion] = React.useState<IUbicacion>();
     const [patrocinadores, setPatrocinadores] = React.useState<iPatrocinador[]>([]);
-    const [comentarios, setComentarios] = React.useState<IComentario[]>([]);
+    const [comentarios, setComentarios] = React.useState<IComentarioEve[]>([]);
     const [nuevoComentario, setNuevoComentario] = React.useState('');
+    const [userC, setUser] = useLocalStorage<iUser | null>('user', null)
 
     const formatDateToDDMMYYYY = (isoDate: string): string => {
         if (!isoDate) return '';
@@ -38,6 +33,14 @@ export const ShowEvento = () => {
         return `${day}/${month}/${year}`;
     }
 
+    const fetchComments = async () => {
+        await apiService.get(`comentario_evento`).then((response) => {
+          const data : any = response.data
+          const filteredComments = data.filter((comment: IComentarioEve) => comment.id_evento === evento?.id)
+          setComentarios(filteredComments)
+        })
+      } 
+
     const fetchData = async () => {
         try {
             const ubicacionResponse = await apiService.get<IUbicacion>(`location/${evento.id_ubicacion}`);
@@ -50,6 +53,34 @@ export const ShowEvento = () => {
             console.error('Error fetching data:', error);
         }
     };
+
+    const handleAddComment = async () => {
+        const hoy =  new Date()
+        if (userC !== null) {
+          const newCommentData: IComentario = {
+            id: 0,
+            id_usuario: userC.id,
+            contenido: nuevoComentario,
+            fecha_creacion: hoy.toISOString().split('T')[0]
+          }
+          await apiService.post('comentario', newCommentData).then(async (response) => {
+              const data : any = response.data
+    
+              console.log(response)
+              const newCommentBlb: any = {
+                id_comentario: data.id,
+                id_evento: evento?.id || 0
+              }
+              await apiService.post('comentario_evento', newCommentBlb).then((response) => {
+                console.log(response)
+              })
+          })
+        if (nuevoComentario.trim()) {
+          fetchComments()
+          setNuevoComentario('')
+        }
+        }
+      }
 
     React.useEffect(() => {
         if (evento?.id) {
@@ -189,27 +220,27 @@ export const ShowEvento = () => {
                                 </CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-4">
-                                <form className="space-y-4">
+                                
                                     <Textarea
                                         value={nuevoComentario}
                                         onChange={(e) => setNuevoComentario(e.target.value)}
                                         placeholder="Escribe tu comentario..."
                                         className="min-h-[100px]"
                                     />
-                                    <Button type="submit" className="w-full sm:w-auto">
+                                    <Button className="w-full sm:w-auto" onClick={handleAddComment}>
                                         Publicar comentario
                                     </Button>
-                                </form>
+                                
 
                                 <div className="space-y-4">
                                     {comentarios.length > 0 ? (
                                         comentarios.map((comentario) => (
-                                            <Card key={comentario.id} className="border-none shadow-sm">
+                                            <Card key={comentario.id_comentario} className="border-none shadow-sm">
                                                 <CardContent className="p-4">
                                                     <div className="flex justify-between items-center mb-2">
-                                                        <span className="font-medium">{comentario.usuario}</span>
+                                                        <span className="font-medium">{comentario.id_usuario}</span>
                                                         <span className="text-sm text-muted-foreground">
-                                                            {new Date(comentario.fecha).toLocaleDateString()}
+                                                            {new Date(comentario.fecha_creacion).toLocaleDateString()}
                                                         </span>
                                                     </div>
                                                     <p className="text-sm text-muted-foreground">{comentario.contenido}</p>

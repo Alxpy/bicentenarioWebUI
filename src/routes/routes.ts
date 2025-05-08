@@ -9,6 +9,7 @@ export const PublicRoutes = {
     HISTORIA : '/historia',
     SHOWHISTORIA:'/showhistoria',
     BIBLIOTECA : '/biblioteca',
+    BIBLIOTECA_ID : '/showLibro',
     PRESIDENTES : '/presidentes',
     PRESIDENTE : '/presidente/detalle',
     CULTURA : '/cultura',

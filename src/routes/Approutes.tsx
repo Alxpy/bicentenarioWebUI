@@ -13,7 +13,7 @@ import { Cultura } from '@/pages/cultura/Cultura';
 import { ShowCultura } from '@/pages/cultura/ShowCultura';
 import { EventosList } from '@/pages/eventos/Evento'
 import { ShowEvento } from '@/pages/eventos/ShowEvento';
-
+import { ShowLibro } from '@/pages/biblioteca/ShowLibro'
 const AppRoutes = () => {
   return (
     <BrowserRouter>
@@ -32,6 +32,7 @@ const AppRoutes = () => {
         <Route path={PublicRoutes.CULTURA_ID} element={<ShowCultura />} />
         <Route path={PublicRoutes.EVENTOS} element={<EventosList />} />
         <Route path={PublicRoutes.EVENTO_ID} element={<ShowEvento />} />
+        <Route path={PublicRoutes.BIBLIOTECA_ID} element={<ShowLibro />} />
 
         {/* Rutas privadas */}
 

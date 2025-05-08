@@ -2,10 +2,14 @@ import React from "react";
 import { Card } from '@/components/ui/card';
 import { Button } from "@/components/ui/button";
 import { apiService } from "@/service/apiservice";
+import useLocalStorage from '@/hooks/useLocalStorage'
+import { IHistory } from "@/components/interface";
+import { useNavigate } from "react-router-dom";
 
 export const Eventos = () => {
   const [historias, setHistorias] = React.useState<any[]>([]);
-
+  const [historia, setshowHistory] = useLocalStorage<IHistory>('showHistory',{} as IHistory)
+  const navigate = useNavigate();
   React.useEffect(() => {
     const fetchHistorias = async () => {
       try {
@@ -78,7 +82,12 @@ export const Eventos = () => {
                     <span>{historia.nombre_ubicacion}</span>
                     <span>{new Date(historia.fecha_inicio).toLocaleDateString()}</span>
                   </div>
-                  <Button className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg w-full">
+                  <Button 
+                    onClick={() => {setshowHistory(historia)
+                      navigate('/showhistoria')
+
+                    }}
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg w-full">
                     Ver más
                   </Button>
                 </div>
