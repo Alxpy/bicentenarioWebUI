@@ -130,7 +130,7 @@ export function ChatIA() {
                   </Avatar>
                   <div>
                     <CardTitle className="text-neon-cyan font-mono">
-                      SYSTEM_AI
+                      Bicentenario IA
                     </CardTitle>
                     <CardDescription className="text-xs text-neon-green">
                       {isLoading ? "[STATUS: PROCESSING...]" : "[STATUS: ONLINE]"}

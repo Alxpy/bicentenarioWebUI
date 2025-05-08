@@ -7,12 +7,13 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
-import { Star } from 'lucide-react';
-import { iShowProducto } from '@/components/interface';
+import {  iEvento } from '@/components/interface';
+import useLocalStorage from '@/hooks/useLocalStorage';
+import { useNavigate } from 'react-router-dom';
 
-
-export const CardProducto: React.FC<{ producto: iShowProducto }> = ({ producto }) => {
-    const [rating, setRating] = useState(producto.calificacion); // Inicializa con la calificación del producto
+export const CardProducto: React.FC<{ producto: iEvento}> = ({ producto }) => {
+    const [selectedEvento, setSelectedEvento] = useLocalStorage<iEvento | null>('selectedEvento', null);
+    const navigate = useNavigate();
 
     return (
         <div className="flex justify-center items-center w-[400px] h-full text-white text-lg">
@@ -32,32 +33,27 @@ export const CardProducto: React.FC<{ producto: iShowProducto }> = ({ producto }
                         <CardTitle className="text-lg font-semibold text-gray-900">
                             {producto.nombre}
                         </CardTitle>
-                        <p className="text-sm text-gray-500">{producto.descripcion}</p>
+            
                         
-                        {/* Sección de calificación */}
-                        <div className="flex mt-1">
-                            {[1, 2, 3, 4, 5].map((star) => (
-                                <Star
-                                    key={star}
-                                    className={`w-5 h-5 cursor-pointer ${
-                                        star <= rating ? 'fill-yellow-400 text-yellow-400' : 'fill-gray-300 text-gray-300'
-                                    }`}
-                                    onClick={() => setRating(star)}
-                                />
-                            ))}
-                        </div>
+                        {/* fecha de inicio y fin */}
+                        <p className="text-sm text-gray-500">Inicio: {new Date(producto.fecha_inicio).toLocaleDateString()}</p>
+                        <p className="text-sm text-gray-500">Fin: {new Date(producto.fecha_fin).toLocaleDateString()}</p>
                     </CardHeader>
                     
                     <CardContent>
-                        <p className="text-xl font-bold text-gray-800">${producto.precio.toFixed(2)}</p>
+                        <p className="text-sm font-bold text-gray-800">${producto.nombre_ubicacion}</p>
                     </CardContent>
                     
                     <CardFooter className="flex justify-between p-4">
-                        <Button variant="outline" className="text-blue-500 border-blue-500">
+                        <Button variant="outline" className="text-blue-500 border-blue-500"
+                            onClick={ async () => {
+                                await setSelectedEvento(producto)
+                                await navigate(`/evento/${producto.id}`)
+                              }}>
+                        
                             Ver más
                         </Button>
-                        <Button className="bg-blue-500 text-white">Comprar</Button>
-                    </CardFooter>
+                     </CardFooter>
                 </div>
             </Card>
         </div>

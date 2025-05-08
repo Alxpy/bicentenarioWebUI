@@ -21,19 +21,19 @@ export const NavAdm = () => {
       icon: <LayoutDashboard className="w-4 h-4" />,
       label: 'Dashboard'
     },
-    [PrivateRoutesAdmin.INVENTORY]: {
+    [PrivateRoutesAdmin.USERS]: {
       icon: <Users className="w-4 h-4" />,
       label: 'Usuarios'
     },
-    [PrivateRoutesAdmin.PRODUCTS]: {
+    [PrivateRoutesAdmin.EVENTS]: {
       icon: <CreditCard className="w-4 h-4" />,
       label: 'Eventos'
     },
-    [PrivateRoutesAdmin.USERS]: {
+    [PrivateRoutesAdmin.HISTORY]: {
       icon: <Users className="w-4 h-4" />,
       label: 'Historia'
     },
-    [PrivateRoutesAdmin.VENTAS]: {
+    [PrivateRoutesAdmin.BIBLIOTHECA]: {
       icon: <CreditCard className="w-4 h-4" />,
       label: 'Biblioteca'
     },

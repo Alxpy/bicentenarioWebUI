@@ -156,7 +156,7 @@ const Navbar = () => {
             </NavigationMenuLink>
           </NavigationMenuItem>
           <NavigationMenuLink href={PublicRoutes.CULTURA} className=" ">
-            Cultura
+            Etnias
           </NavigationMenuLink>
           <NavigationMenuLink href={PublicRoutes.PRESIDENTES} className=" ">
             Presidentes
