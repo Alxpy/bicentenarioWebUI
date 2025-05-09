@@ -11,7 +11,7 @@ import { ICultura, iEvento, iUser, iPatrocinador, iPatrocinadorCreate } from '@/
 import { Loader2 } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { se } from 'date-fns/locale';
-
+import useLocalStorage from '@/hooks/useLocalStorage';
 
 const formSchema = z.object({
     nombre: z.string().min(3, 'Nombre debe tener al menos 3 caracteres'),
@@ -22,8 +22,11 @@ const formSchema = z.object({
     id_tipo_evento: z.number().optional(),
     id_ubicacion: z.number().optional(),
     id_usuario: z.number().optional(),
+    precio: z.string().optional(),
+    modalidad: z.string().optional(),
     id_organizador: z.number().optional(),
     patrocinadores: z.array(z.number()).optional(),
+    expositores: z.array(z.number()).optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -49,6 +52,7 @@ export const FormEvento = ({ initialData, setCreateUbi, onSuccess, onCancel }: F
     const [organizadores, setOrganizadores] = useState<iUser[]>([]);
     const [usuarios, setUsuarios] = useState<iUser[]>([]);
     const [tipoEventos, setTipoEventos] = useState<iTipoEvento[]>([]);
+    const [userLogged,] = useLocalStorage('user', null);
 
     const form = useForm<FormValues>({
         resolver: zodResolver(formSchema),
@@ -60,9 +64,12 @@ export const FormEvento = ({ initialData, setCreateUbi, onSuccess, onCancel }: F
             fecha_fin: '',
             id_tipo_evento: 0,
             id_ubicacion: 0,
-            id_usuario: 0,
+            id_usuario: userLogged?.id || 0,
+            precio: '',
+            modalidad: '',
             id_organizador: 0,
             patrocinadores: [],
+            expositores: [],
         }
     });
 
@@ -392,41 +399,6 @@ export const FormEvento = ({ initialData, setCreateUbi, onSuccess, onCancel }: F
                     )}
                 </div>
 
-                {/* Usuario Responsable */}
-                <FormField
-                    control={form.control}
-                    name="id_usuario"
-                    render={({ field }) => (
-                        <FormItem className="space-y-2">
-                            <FormLabel className="text-base">Usuario Responsable</FormLabel>
-                            <Select
-                                onValueChange={(value) => field.onChange(Number(value))}
-                                value={field.value?.toString()}
-                                disabled={isSubmitting}
-                            >
-                                <FormControl>
-                                    <SelectTrigger className="rounded-lg">
-                                        <SelectValue placeholder="Selecciona un usuario" />
-                                    </SelectTrigger>
-                                </FormControl>
-                                <SelectContent className="rounded-lg">
-                                    {usuarios.map((usuario) => (
-                                        <SelectItem
-                                            key={usuario.id}
-                                            value={usuario.id.toString()}
-                                            className="focus:bg-accent/50"
-                                        >
-                                            {usuario.nombre}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-
-
                 {/* Tipo de Evento */}
                 <FormField
                     control={form.control}
@@ -463,6 +435,73 @@ export const FormEvento = ({ initialData, setCreateUbi, onSuccess, onCancel }: F
 
                     )}
                 />
+
+                 {/* Modalidad de Evento Virtual o Presencial */}
+                <FormField
+                    control={form.control}
+                    name="modalidad"
+                    render={({ field }) => (
+
+                        <FormItem className="space-y-2">
+                            <FormLabel className="text-base">Modalidad de Evento</FormLabel>
+                            <Select
+                                onValueChange={(value) => field.onChange(Number(value))}
+                                value={field.value?.toString()}
+                                disabled={isSubmitting}
+                            >
+                                <FormControl>
+                                    <SelectTrigger className="rounded-lg">
+                                        <SelectValue placeholder="Selecciona un tipo de evento" />
+                                    </SelectTrigger>
+                                </FormControl>
+                                <SelectContent className="rounded-lg">
+                                    <SelectItem
+                                        key={1}
+                                        value={"1"}
+                                        className="focus:bg-accent/50"
+                                    >
+                                        Presencial
+                                    </SelectItem>
+                                    <SelectItem
+                                        key={2}
+                                        value={"2"}
+                                        className="focus:bg-accent/50"
+                                    >
+                                        Virtual 
+                                    </SelectItem>
+
+
+                                </SelectContent>
+                            </Select>
+                            <FormMessage />
+                        </FormItem>
+
+
+                    )}
+                />
+
+                {/* Precio */}
+                <FormField
+                        control={form.control}
+                        name="precio"
+                        render={({ field }) => (
+                            <FormItem className="space-y-2">
+                                <FormLabel className="text-base">Precio</FormLabel>
+                                <FormControl>
+                                    <Input
+                                        placeholder="Ej: 00.00"
+                                        {...field}
+                                        disabled={isSubmitting}
+                                        className="rounded-lg bg-muted/50"
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+
+                {/*Expositores */}
+                
 
                 {/* Patrocinadores */}
                 <FormField

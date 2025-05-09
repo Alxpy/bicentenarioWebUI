@@ -16,6 +16,8 @@ interface IBibliotecaProrops {
   onSuccess?: () => void
 }
 
+import { TabsForm } from './TabsForm';
+
 export const DialogAdd = ({ open, onClose, onSuccess }: IBibliotecaProrops) => {
 
   const [crateUbi, setCreateUbi] = React.useState(true)
@@ -84,23 +86,28 @@ export const DialogAdd = ({ open, onClose, onSuccess }: IBibliotecaProrops) => {
         : 'Ocurrió un error al crear el evento');
     }
   };
-
-
-  return (
-    <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-[90vw] max-h-[100vh] bg-gray-800/90 backdrop-blur-lg border border-white/20 rounded-xl overflow-hidden text-white">
-        <DialogHeader>
-          <DialogTitle>Agregar Evento</DialogTitle>
-          <DialogDescription>Agrega una nuevo evento.</DialogDescription>
-        </DialogHeader>
-        {!crateUbi ? (<div className='overflow-y-auto max-h-[90vh] pr-2'>
+/*
+ {!crateUbi ? (<div className='overflow-y-auto max-h-[90vh] pr-2'>
           <MapaInteractivo onSucces={enviar} />
         </div>
 
         ) : (
           <FormEvento setCreateUbi={() => setCreateUbi(false)} />
-        )}
-      </DialogContent>
-    </Dialog>
-  )
+        )}*/
+
+
+return (
+  <Dialog  open={open} onOpenChange={onClose}>
+    <DialogContent className="w-[95vw] min-w-[50vw] max-h-[90vh] bg-gray-800/90 backdrop-blur-lg border border-white/20 rounded-xl overflow-y-auto text-white flex flex-col">
+      <DialogHeader className="px-6 pt-6 pb-4">
+        <DialogTitle className="text-2xl">Agregar Evento</DialogTitle>
+        <DialogDescription>Complete los datos del nuevo evento</DialogDescription>
+      </DialogHeader>
+      
+      <div className="flex-1 w-[100%] flex flex-col px-6 pb-6">
+        <TabsForm />
+      </div>
+    </DialogContent>
+  </Dialog>
+)
 }
