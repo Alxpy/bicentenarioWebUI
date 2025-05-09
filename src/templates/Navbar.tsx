@@ -161,6 +161,9 @@ const Navbar = () => {
           <NavigationMenuLink href={PublicRoutes.PRESIDENTES} className=" ">
             Presidentes
           </NavigationMenuLink>
+          <NavigationMenuLink href={PublicRoutes.NOTICIAS} className=" ">
+            Noticias
+          </NavigationMenuLink>
         </NavigationMenuList>
       </NavigationMenu>
 

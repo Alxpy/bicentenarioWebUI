@@ -16,6 +16,8 @@ export const PublicRoutes = {
     CULTURA_ID : '/cultura/:id',
     EVENTOS : '/eventos',
     EVENTO_ID : '/evento/:id',
+    NOTICIAS : '/noticias',
+    NOTICIA_ID : '/noticias/:id',
 };
 
 export const PrivateRoutes = {

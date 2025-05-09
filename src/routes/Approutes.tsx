@@ -14,6 +14,9 @@ import { ShowCultura } from '@/pages/cultura/ShowCultura';
 import { EventosList } from '@/pages/eventos/Evento'
 import { ShowEvento } from '@/pages/eventos/ShowEvento';
 import { ShowLibro } from '@/pages/biblioteca/ShowLibro'
+import { Noticias } from '@/pages/noticias/Noticias';
+import { ShowNews } from '@/pages/noticias/ShowNews';
+
 const AppRoutes = () => {
   return (
     <BrowserRouter>
@@ -33,6 +36,8 @@ const AppRoutes = () => {
         <Route path={PublicRoutes.EVENTOS} element={<EventosList />} />
         <Route path={PublicRoutes.EVENTO_ID} element={<ShowEvento />} />
         <Route path={PublicRoutes.BIBLIOTECA_ID} element={<ShowLibro />} />
+        <Route path={PublicRoutes.NOTICIAS} element={<Noticias />} />
+        <Route path={PublicRoutes.NOTICIA_ID} element={<ShowNews />} />
 
         {/* Rutas privadas */}
 
