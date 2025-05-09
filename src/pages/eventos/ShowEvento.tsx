@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import MainLayout from '@/templates/MainLayout';
-
+import { toast } from 'sonner';
 
 export const ShowEvento = () => {
     const [evento, setEvento] = useLocalStorage<iEvento>('selectedEvento', {} as iEvento);
@@ -19,7 +19,7 @@ export const ShowEvento = () => {
     const [comentarios, setComentarios] = React.useState<IComentarioEve[]>([]);
     const [nuevoComentario, setNuevoComentario] = React.useState('');
     const [userC, setUser] = useLocalStorage<iUser | null>('user', null)
-
+    const [isRegistered, setIsRegistered] = React.useState(false)
     const formatDateToDDMMYYYY = (isoDate: string): string => {
         if (!isoDate) return '';
 
@@ -49,10 +49,38 @@ export const ShowEvento = () => {
             const patrocinadoresResponse = await apiService.get(`patrocinador_evento/evento/${evento.id}`);
             setPatrocinadores(patrocinadoresResponse.data);
 
+            const isRegistradoEvento = await apiService.get(`usuario/{usuarioId}?usuario_eventoId=${userC?.id}`);
+            const data = isRegistradoEvento.data
+            const isRegistered = data.some((evento: any) => evento.id_evento === evento?.id);
+            if (isRegistered) {
+                setIsRegistered(true)
+            }
+            else {
+                setIsRegistered(false)
+            }
         } catch (error) {
             console.error('Error fetching data:', error);
         }
     };
+
+    const registerEvento = async() => {
+        if (userC !== null) {
+            await apiService.post('usuario_evento',{
+                id_usuario: userC.id,
+                id_evento: evento?.id || 0
+            }).then((response) => {
+                console.log(response)
+                toast.success('Te has registrado en el evento correctamente')
+                setIsRegistered(true)
+            }).catch((error) => {
+                console.error('Error al registrar el evento:', error);
+            })
+        }
+        else {
+            
+            alert('Debes iniciar sesión para registrarte en el evento')
+        }
+    }
 
     const handleAddComment = async () => {
         const hoy =  new Date()
@@ -80,11 +108,15 @@ export const ShowEvento = () => {
           setNuevoComentario('')
         }
         }
+        else {
+            alert('Debes iniciar sesión para comentar')
+        }
       }
 
     React.useEffect(() => {
         if (evento?.id) {
             fetchData();
+            fetchComments();
         }
     }, [evento]);
 
@@ -111,6 +143,15 @@ export const ShowEvento = () => {
                     </div>
 
                     <div className="space-y-6">
+                        <div>
+                            {!isRegistered ? (<Button className="w-full sm:w-auto" onClick={() => registerEvento()}>
+                                Registrarse en el evento
+                            </Button>):(
+                                <Button className="w-full sm:w-auto" disabled>
+                                    Ya estás registrado
+                                </Button>
+                            )}
+                        </div>
                         <div>
                             <h1 className="text-3xl font-bold">{evento.nombre}</h1>
                             <div className="flex items-center gap-2 mt-2 text-muted-foreground">
@@ -221,18 +262,9 @@ export const ShowEvento = () => {
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 
-                                    <Textarea
-                                        value={nuevoComentario}
-                                        onChange={(e) => setNuevoComentario(e.target.value)}
-                                        placeholder="Escribe tu comentario..."
-                                        className="min-h-[100px]"
-                                    />
-                                    <Button className="w-full sm:w-auto" onClick={handleAddComment}>
-                                        Publicar comentario
-                                    </Button>
                                 
 
-                                <div className="space-y-4">
+                                <div className="space-y-4 overflow-y-auto max-h-60">
                                     {comentarios.length > 0 ? (
                                         comentarios.map((comentario) => (
                                             <Card key={comentario.id_comentario} className="border-none shadow-sm">
@@ -251,6 +283,16 @@ export const ShowEvento = () => {
                                         <p className="text-sm text-muted-foreground text-center py-4">No hay comentarios aún</p>
                                     )}
                                 </div>
+                                
+                                <Textarea
+                                        value={nuevoComentario}
+                                        onChange={(e) => setNuevoComentario(e.target.value)}
+                                        placeholder="Escribe tu comentario..."
+                                        className="min-h-[100px]"
+                                    />
+                                    <Button className="w-full sm:w-auto" onClick={handleAddComment}>
+                                        Publicar comentario
+                                    </Button>
                             </CardContent>
                         </Card>
                     </div>

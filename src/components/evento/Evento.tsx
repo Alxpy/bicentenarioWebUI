@@ -73,11 +73,8 @@ export const Evento = () => {
             key: 'nombre',
             header: 'Evento',
             render: (nombre: string, row) => (
-                <div className="font-medium">
-                    {nombre}
-                    <p className="text-xs text-blue-600/70 mt-1 line-clamp-2">
-                        {row.descripcion}
-                    </p>
+                <div className="font-medium ">
+                    {nombre}                    
                 </div>
             )
         },

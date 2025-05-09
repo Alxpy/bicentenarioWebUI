@@ -83,9 +83,13 @@ export const Cultura = () => {
             key: 'imagen',
             header: 'Imagen',
             render: (imagen: string) => (
-                <div className="max-w-[100px] truncate text-amber-900">
-                    {imagen || 'Sin imagen'}
-                </div>
+                <div className="flex items-center gap-2">
+                <img
+                  src={imagen}
+                  alt={imagen}
+                  className="w-10 h-10 rounded-full object-cover"
+                />
+              </div>
             )
         },
         {

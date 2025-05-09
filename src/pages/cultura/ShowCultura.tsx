@@ -3,6 +3,7 @@ import React from 'react'
 import { ICultura, IUbicacion } from '@/components/interface'
 import useLocalStorage from '@/hooks/useLocalStorage'
 import {Mapa} from '@/components/ubicacion/Mapa'
+import MainLayout from '@/templates/MainLayout'
 interface IMultimediacultura {
   id_multimedia: number;
   id_cultura: number;
@@ -69,7 +70,8 @@ export const ShowCultura = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-4 space-y-6">
+    <MainLayout>
+      <div className="max-w-4xl mx-auto p-4 space-y-6">
       {/* Encabezado */}
       <div className="space-y-2">
         <h1 className="text-3xl font-bold">{cultura.nombre}</h1>
@@ -125,40 +127,7 @@ export const ShowCultura = () => {
         )}
       </div>
 
-      {/* Comentarios */}
-      <div className="space-y-4">
-        <h2 className="text-xl font-bold">Comentarios</h2>
-        
-        <form onSubmit={handleSubmitComentario} className="space-y-2">
-          <textarea
-            value={nuevoComentario}
-            onChange={(e) => setNuevoComentario(e.target.value)}
-            placeholder="Escribe tu comentario..."
-            className="w-full p-2 border rounded-lg dark:bg-gray-800 dark:border-gray-700"
-            rows={3}
-          />
-          <button
-            type="submit"
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-          >
-            Publicar comentario
-          </button>
-        </form>
-
-        <div className="space-y-4">
-          {comentarios.map((comentario) => (
-            <div key={comentario.id} className="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
-              <div className="flex justify-between items-center mb-2">
-                <span className="font-semibold">{comentario.usuario}</span>
-                <span className="text-sm text-gray-600 dark:text-gray-400">
-                  {new Date(comentario.fecha).toLocaleDateString()}
-                </span>
-              </div>
-              <p className="text-gray-800 dark:text-gray-200">{comentario.contenido}</p>
-            </div>
-          ))}
-        </div>
-      </div>
     </div>
+    </MainLayout>
   )
 }
