@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
 import { toast } from 'sonner'
+import { ro } from 'date-fns/locale'
 
 interface Roles {
   id: number
@@ -48,14 +49,17 @@ export const RolesForm = ({ id_usuario, open, onClose }: RoleProps) => {
 
   const handleAssignRoles = async () => {
     
-      await apiService.post(`usuarios/${id_usuario}/asignar-roles`, {
-        roles: selectedRoles
-      }).then((res: any) => {
-          toast.success('Roles asignados correctamente')
-      }
-      ).catch((error: any) => {
-        console.error('Error assigning roles:', error)
-        toast.error('Error al asignar roles')
+      selectedRoles.forEach(async (rol) => {
+        await apiService.post(`usuario_rol`, {
+          id_usuario: id_usuario,
+          id_rol: rol 
+        }).then((res: any) => {
+            toast.success('Roles asignados correctamente')
+        }
+        ).catch((error: any) => {
+          console.error('Error assigning roles:', error)
+          toast.error('Error al asignar roles')
+        })
       })
       toast.success('Roles asignados correctamente')
       onClose()
