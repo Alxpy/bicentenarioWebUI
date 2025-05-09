@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/carousel"
 import Autoplay from "embla-carousel-autoplay"
 
-import { IDataNew } from "@/components/interface"
+import { iNews } from "@/components/interface"
 import { apiService } from "@/service/apiservice"
 
 interface INew {
@@ -24,7 +24,7 @@ interface INew {
 
 const CarrouselNews = () => {
 
-  const [dataNew, setDataNew] = React.useState<IDataNew[]>([])
+  const [dataNew, setDataNew] = React.useState<iNews[]>([])
   const [loading, setLoading] = React.useState(true)
 
   React.useEffect(() => {
@@ -43,14 +43,14 @@ const CarrouselNews = () => {
           }}
           plugins={[
             Autoplay({
-              delay: 2000,
+              delay: 9000,
             }),
           ]}
           className="w-[80vw] h-[100%]  md:h-[80vh]  lg:h-[70vh] mb-20"
         >
           <CarouselContent>
             {dataNew.map((data, index) => (
-              <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3">
+              <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/4">
               <div className="p-1">
                 <CardNew dataNew={data}/>
               </div>

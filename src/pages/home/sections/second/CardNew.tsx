@@ -7,13 +7,19 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { IDataNew } from "@/components/interface";
-
+import { IDataNew, iNews } from "@/components/interface";
+import  useLocalStorage  from "@/hooks/useLocalStorage";
+import { useNavigate } from "react-router-dom";
 interface CardNewProps {
-  dataNew: IDataNew;
+  dataNew: iNews;
 }
 
 const CardNew = ({ dataNew }: CardNewProps) => {
+  const navigate = useNavigate();
+  const [showNews, setShowNews] = useLocalStorage<iNews | null>('showNews', null)
+
+  
+
   return (
     <Card className=" flex flex-col justify-between h-[450px] w-[250px] shadow-lg rounded-lg inset-shadow-sm inset-shadow-slate-800">
      
@@ -40,7 +46,12 @@ const CardNew = ({ dataNew }: CardNewProps) => {
 
       <CardFooter className="flex justify-between items-center p-4 bg-gray-100">
         <span className="text-xs text-gray-500">{dataNew.fecha_publicacion}</span>
-        <button className="text-blue-500 text-xs hover:underline">Ver más</button>
+        <button className="text-blue-500 text-xs hover:underline"
+        onClick={() => {
+          setShowNews(dataNew)
+          navigate(`/noticias/${dataNew.id}`)
+        }}
+        >Ver más</button>
       </CardFooter>
     </Card>
   );
