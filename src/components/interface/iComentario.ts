@@ -32,6 +32,7 @@ export interface IComentarioBlb {
     id_comentario: number
     id_biblioteca: number
     id_usuario: number
+    nombre: string
     contenido: string
     fecha_creacion: string}
 
@@ -39,5 +40,6 @@ export interface IComentarioBlb {
         id_comentario: number
         id_evento: number
         id_usuario: number
+        nombre: string
         contenido: string
         fecha_creacion: string}

@@ -47,7 +47,7 @@ const VerifyCode = () => {
         const verificationCode = code.join('');
         
         try {
-            const res: IApiResponse = await apiService.get(`verify/email/${email}/${verificationCode}`);
+            const res: IApiResponse = await apiService.get(`auth/login/verifyCode/${email}/${verificationCode}`);
             if (res.success) {
                 navigate('/auth');
             } else {

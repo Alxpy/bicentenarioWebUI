@@ -158,6 +158,7 @@ export const ShowLibro = () => {
                   {comments.length > 0 ? (
                     comments.map((comment, index) => (
                       <div key={index} className="bg-slate-50 p-4 rounded-lg">
+                        <p className="text-slate-600 font-semibold">{comment.nombre}</p>
                         <p className="text-slate-700">{comment.contenido}</p>
                       </div>
                     ))

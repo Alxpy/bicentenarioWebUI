@@ -270,7 +270,7 @@ export const ShowEvento = () => {
                                             <Card key={comentario.id_comentario} className="border-none shadow-sm">
                                                 <CardContent className="p-4">
                                                     <div className="flex justify-between items-center mb-2">
-                                                        <span className="font-medium">{comentario.id_usuario}</span>
+                                                        <span className="font-medium">{comentario.nombre}</span>
                                                         <span className="text-sm text-muted-foreground">
                                                             {new Date(comentario.fecha_creacion).toLocaleDateString()}
                                                         </span>
