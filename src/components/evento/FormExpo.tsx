@@ -26,9 +26,6 @@ const expositorSchema = z.object({
 interface iExpositor {
   id: string;
   nombre: string;
-  titulo: string;
-  bio: string;
-  foto?: string;
 }
 
 interface FormExpositoresProps {
@@ -47,9 +44,6 @@ export const FormExpositores = ({ eventoId, onSuccess, onBack }: FormExpositores
     resolver: zodResolver(expositorSchema),
     defaultValues: {
       nombre: '',
-      titulo: '',
-      bio: '',
-      foto: ''
     }
   });
 
