@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  bicentenario-front:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: bicentenarioFront
+    ports:
+      - "3000:3000" 
+      - "5000:5000" 
+      - "5173:5173" 
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: npm run dev
