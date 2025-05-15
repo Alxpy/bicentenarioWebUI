@@ -1,5 +1,5 @@
 import React from 'react';
-import { iEvento, iPatrocinador, IUbicacion, IComentario, IComentarioEve,  iUser  } from '@/components/interface';
+import { iEvento, iPatrocinador, IUbicacion, IComentario, IComentarioEve, iUser } from '@/components/interface';
 import useLocalStorage from '@/hooks/useLocalStorage';
 import { Mapa } from '@/components/ubicacion/Mapa';
 import { apiService } from '@/service/apiservice';
@@ -12,19 +12,21 @@ import { Button } from '@/components/ui/button';
 import MainLayout from '@/templates/MainLayout';
 import { toast } from 'sonner';
 import { FaMoneyBill } from 'react-icons/fa';
+import { useNavigate, useParams } from 'react-router-dom';
 interface Expositor {
     id: number;
     nombre: string;
 }
 export const ShowEvento = () => {
     const [expositores, setExpositores] = React.useState<Expositor[]>([]);
-    const [evento, setEvento] = useLocalStorage<iEvento>('selectedEvento', {} as iEvento);
-    const [ubicacion, setUbicacion] = React.useState<IUbicacion>();
+    const [evento,setEvento] = useLocalStorage<iEvento>('selectedEvento', {} as iEvento);
+    const [ubicacion, setUbicacion] = React.useState<IUbicacion | null>(null);
     const [patrocinadores, setPatrocinadores] = React.useState<iPatrocinador[]>([]);
     const [comentarios, setComentarios] = React.useState<IComentarioEve[]>([]);
     const [nuevoComentario, setNuevoComentario] = React.useState('');
-    const [userC, setUser] = useLocalStorage<iUser | null>('user', null)
+    const [userC,] = useLocalStorage<iUser | null>('user', null)
     const [isRegistered, setIsRegistered] = React.useState(false)
+    const {id} = useParams<{id: string}>()
     const formatDateToDDMMYYYY = (isoDate: string): string => {
         if (!isoDate) return '';
 
@@ -49,8 +51,12 @@ export const ShowEvento = () => {
 
     const fetchData = async () => {
         try {
-            const ubicacionResponse = await apiService.get<IUbicacion>(`location/${evento.id_ubicacion}`);
-            setUbicacion(ubicacionResponse.data);
+            // 1. Solo pedir ubicación si el evento es presencial
+            if (evento.categoria === 'presencial') {
+                const ubicacionResponse = await apiService.get<IUbicacion>(`location/${evento.id_ubicacion}`);
+                console.log('Ubicación:', ubicacionResponse.data);
+                setUbicacion(ubicacionResponse.data);
+            }
 
             const patrocinadoresResponse = await apiService.get(`patrocinador_evento/evento/${evento.id}`);
             setPatrocinadores(patrocinadoresResponse.data);
@@ -125,6 +131,17 @@ export const ShowEvento = () => {
     }
 
     React.useEffect(() => {
+        console.log('Evento:', evento);
+        if(evento.id === undefined) {
+            const getchEvent = async () => {
+                await apiService.get(`evento/${id}`).then((response) => {
+                const data: any = response.data
+                setEvento(data)
+            }
+            )
+            }
+            getchEvent()
+        }
         if (evento?.id) {
             fetchData();
             fetchComments();
@@ -234,19 +251,16 @@ export const ShowEvento = () => {
 
                     {evento.categoria === 'presencial' && (
                         <div>
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle>Ubicación</CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                    {ubicacion && (
-                                        <div className="h-64 rounded-lg overflow-hidden">
-                                            <Mapa ubicacion={ubicacion} key={`map-${ubicacion.id}`} />
-                                        </div>
-                                    )}
-                                    <p className="mt-2 text-sm text-muted-foreground">{ubicacion?.nombre || 'Cargando ubicación...'}</p>
-                                </CardContent>
-                            </Card>
+                            <CardContent>
+                                {ubicacion ? (
+                                    <div className="h-64 rounded-lg overflow-hidden">
+                                        <Mapa ubicacion={ubicacion} key={`map-${ubicacion.id}`} />
+                                    </div>
+                                ) : evento.categoria === 'presencial' ? (
+                                    <p className="text-sm text-muted-foreground">Cargando ubicación...</p>
+                                ) : null}
+                                <p className="mt-2 text-sm text-muted-foreground">{ubicacion?.nombre}</p>
+                            </CardContent>
                         </div>
                     )}
                 </div>

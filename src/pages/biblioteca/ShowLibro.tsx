@@ -1,5 +1,5 @@
 import MainLayout from '@/templates/MainLayout'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import useLocalStorage from '@/hooks/useLocalStorage'
 import { ILibro, IComentario,  IComentarioResponse ,iUser, ICreateComentarioBlb, IComentarioBlb} from '@/components/interface'
 import { Button } from '@/components/ui/button'
@@ -13,7 +13,7 @@ export const ShowLibro = () => {
   const [userC, setUser] = useLocalStorage<iUser | null>('user', null)
   const [comments, setComments] = useState<IComentarioBlb[]>([])
   const [newComment, setNewComment] = useState('')
-
+  const { id } = useParams<{ id: string }>()
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)
     return date.toLocaleDateString('es-BO', {
@@ -23,6 +23,12 @@ export const ShowLibro = () => {
     })
   }
 
+/*************  ✨ Windsurf Command ⭐  *************/
+  /**
+   * Fetches comments from the API and filters them to show only the comments
+   * for the current book.
+   */
+/*******  abb144c9-c25c-48a8-8dcd-a3161d3c8e00  *******/
   const fetchComments = async () => {
     await apiService.get(`comentario_biblioteca`).then((response) => {
       const data : any = response.data
@@ -32,6 +38,16 @@ export const ShowLibro = () => {
   }
 
   useEffect(() => {
+    if (!showLibro) {
+      const fetchLibro = async () => {
+        await apiService.get(`library/${id}`).then((response) => {
+          const data : any = response.data
+          setShowLibro(data)
+        })
+      }
+      fetchLibro()
+    }
+
     fetchComments()
   }, [showLibro])
 

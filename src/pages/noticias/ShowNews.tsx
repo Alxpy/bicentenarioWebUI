@@ -1,5 +1,5 @@
 import MainLayout from '@/templates/MainLayout'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import useLocalStorage from '@/hooks/useLocalStorage'
 import { iNews } from '@/components/interface'
 import { Button } from '@/components/ui/button'
@@ -9,13 +9,15 @@ import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
+import { apiService } from '@/service/apiservice'
+import { aw } from 'node_modules/framer-motion/dist/types.d-6pKw1mTI'
 
 export const ShowNews = () => {
     const navigate = useNavigate()
     const [showNews, setShowNews] = useLocalStorage<iNews | null>('showNews', null)
     const [loading, setLoading] = useState(true)
     const [relatedNews, setRelatedNews] = useState<iNews[]>([])
-
+const { id } = useParams<{ id: string }>();
     // Formatear fecha en español
     const formatDate = (dateString: string) => {
         return format(new Date(dateString), "PPPP", { locale: es })
@@ -24,7 +26,12 @@ export const ShowNews = () => {
     // Cargar noticias relacionadas
     useEffect(() => {
         const fetchRelatedNews = async () => {
-            if (!showNews) return
+            if (!showNews) {
+                console.log('No hay noticias seleccionadas')
+                const response = await apiService.get(`news/${id}`)
+                setShowNews(response.data)
+                console.log('Noticia seleccionada:', response.data)
+            }
             
             try {
                 // Aquí deberías hacer una llamada a tu API para obtener noticias relacionadas

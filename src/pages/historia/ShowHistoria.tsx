@@ -4,6 +4,7 @@ import { IHistory, IUbicacion } from '@/components/interface'
 import useLocalStorage from '@/hooks/useLocalStorage'
 import {Mapa} from '@/components/ubicacion/Mapa'
 import MainLayout from '@/templates/MainLayout'
+import { useNavigate, useParams } from 'react-router-dom'
 interface IMultimediaHistoria {
   id_multimedia: number;
   id_historia: number;
@@ -25,8 +26,23 @@ export const ShowHistoria = () => {
   const [comentarios, setComentarios] = React.useState<IComentario[]>([])
   const [nuevoComentario, setNuevoComentario] = React.useState('')
   const [historia, setshowHistory] = useLocalStorage<IHistory>('showHistory',{} as IHistory)
-
+const { id } = useParams<{ id: string }>();
   React.useEffect(() => {
+
+    if (!historia.id) {
+       const fetchHistoria = async () => {
+         await apiService.get<IHistory>(`history/${id}`).then((response: any) => {
+          console.log('Historia seleccionada:', response.data)
+          setshowHistory(response.data)
+        }).catch((error) => {
+          console.error('Error fetching historia:', error)
+        }
+      )
+      }
+      fetchHistoria()
+      
+    }
+
     const fetchData = async () => {
       try {
         // Fetch multimedia
@@ -75,10 +91,10 @@ export const ShowHistoria = () => {
 
   return (
    <MainLayout>
-     <div className="max-w-4xl mx-auto p-4 space-y-6">
+     <div className="max-w-4xl mx-auto p-4 space-y-6 text-slate-900">
       {/* Encabezado */}
       <div className="space-y-2">
-        <h1 className="text-3xl font-bold">{historia.titulo}</h1>
+        <h1 className="text-3xl text-slate-950 font-bold">{historia.titulo}</h1>
         <div className="flex gap-4 text-gray-600 dark:text-gray-400">
           <span>
             {new Date(historia.fecha_inicio).toLocaleDateString()} -{' '}

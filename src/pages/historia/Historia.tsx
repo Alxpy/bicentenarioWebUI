@@ -151,7 +151,7 @@ export const Historia = () => {
                           {historia.fecha_fin} - {historia.fecha_fin}
                         </div>
                         <Button variant="outline" size="sm" className="gap-2 text-blue-800 border-blue-300 hover:bg-blue-100"
-                          onClick={ () => {setshowHistory(historia); navigate('/showhistoria')}}
+                          onClick={ () => {setshowHistory(historia); navigate(`/showhistoria/${historia.id}`)}}
                         >
                           Ver más
                           <FiArrowRight className="w-4 h-4" />

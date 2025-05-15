@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import ReactMarkdown from 'react-markdown';
 import {
   Card,
   CardHeader,
@@ -14,15 +15,18 @@ import {
 } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Send, X, Bot, Maximize2, Minimize2 } from "lucide-react";
-import "./StyleChat"
-import { apiService } from "@/service/apiservice";
+import "./StyleChat";
+import { generateResponse, IntentType } from "@/components/chat/converController";
+import { classifyIntent } from "@/components/chat/connectionGemiini";
+import useLocalStorage from "@/hooks/useLocalStorage";
+import { iUser } from "@/components/interface";
+import { useNavigate } from "react-router-dom"; // Importa useNavigate
 
 interface Message {
   conversation_id: string;
   role: "user" | "assistant";
-  message: string;
+  message: string | React.ReactNode; // Permite string o ReactNode
 }
-
 
 export function ChatIA() {
   const [isOpen, setIsOpen] = useState(false);
@@ -31,7 +35,8 @@ export function ChatIA() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-
+  const [user, ] = useLocalStorage("user", {} as iUser);
+  const navigate = useNavigate(); // Obtén la función navigate
 
   useEffect(() => {
     if (isOpen && messages.length === 0) {
@@ -45,7 +50,6 @@ export function ChatIA() {
     }
   }, [isOpen]);
 
-
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
@@ -55,50 +59,51 @@ export function ChatIA() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!inputValue.trim()) return;
+    if (!inputValue.trim() || isLoading) return;
 
-
-    const userMessage: Message = {
-      conversation_id: Date.now().toString(),
-      message: inputValue,
-      role: "user"
-    };
-
-    setMessages((prev) => [...prev, userMessage]);
-    setInputValue("");
-    setIsLoading(true);
-
-
-    await apiService.post("/chat/", {
-      conversation_id: userMessage.conversation_id,
-      message: userMessage.message,
-      role: userMessage.role
-    }).then((response) => {
-      const aiResponse: any = response;
-      console.log(aiResponse);
-      const mapMessage: Message = {
-        conversation_id: aiResponse.conversation_id,
-        message: aiResponse.response,
-        role: "assistant",
+    try {
+      // Crear mensaje de usuario
+      const userMessage: Message = {
+        conversation_id: Date.now().toString(),
+        message: inputValue,
+        role: "user"
       };
-      setMessages((prev) => [...prev, mapMessage]);
-    }).catch((error) => {
-      console.error("Error al obtener respuesta de la IA:", error);
-      setMessages((prev) => [
-        ...prev,
-        {
-          conversation_id: (Date.now() + 1).toString(),
-          message: "Lo siento, hubo un error al procesar tu solicitud.",
-          role: "assistant",
-          timestamp: new Date(),
-        },
-      ]);
-    }).finally(() => {
+
+      // Actualizar estado con mensaje del usuario
+      setMessages(prev => [...prev, userMessage]);
+      setInputValue("");
+      setIsLoading(true);
+
+      // Clasificar la intención
+      const intent = await classifyIntent(inputValue);
+
+      // Generar respuesta
+      const aiResponse = await generateResponse(intent as IntentType, {
+        sender: user?.nombre || "Usuario",  // Usar nombre del usuario si está logueado
+        message: inputValue,
+        states: user,  // Enviar toda la información del usuario
+      });
+
+      // Crear mensaje de la IA
+      const assistantMessage: Message = {
+        conversation_id: Date.now().toString(),
+        message: aiResponse,
+        role: "assistant"
+      };
+
+      // Actualizar estado con respuesta
+      setMessages(prev => [...prev, assistantMessage]);
+    } catch (error) {
+      console.error("Error en el flujo de chat:", error);
+      const errorMessage: Message = {
+        conversation_id: Date.now().toString(),
+        message: "⚠️ Error al procesar tu solicitud. Por favor intenta nuevamente.",
+        role: "assistant"
+      };
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
       setIsLoading(false);
-    });
-
-
-
+    }
   };
 
   return (
@@ -174,8 +179,8 @@ export function ChatIA() {
                           initial={{ opacity: 0, x: message.role === "user" ? 20 : -20 }}
                           animate={{ opacity: 1, x: 0 }}
                           className={`max-w-[80%] rounded-lg px-4 py-2 font-mono text-sm border ${message.role === "user"
-                              ? "border-neon-cyan text-neon-cyan bg-cyan-900/10 shadow-glow-cyan"
-                              : "border-neon-green text-neon-green bg-green-900/10 shadow-glow-green"
+                            ? "border-neon-cyan text-neon-cyan bg-cyan-900/10 shadow-glow-cyan"
+                            : "border-neon-green text-neon-green bg-green-900/10 shadow-glow-green"
                             }`}
                           style={{
                             textShadow: message.role === "user"
@@ -183,7 +188,12 @@ export function ChatIA() {
                               : '0 0 8px rgba(0, 255, 0, 0.5)'
                           }}
                         >
-                          {message.message}
+                          {/* Renderiza como string o como nodo React */}
+                          {typeof message.message === 'string' ? (
+                            <ReactMarkdown>{message.message}</ReactMarkdown>
+                          ) : (
+                            message.message
+                          )}
                         </motion.div>
                       </div>
                     ))}
