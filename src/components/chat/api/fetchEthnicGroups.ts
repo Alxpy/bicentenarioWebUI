@@ -5,6 +5,7 @@ export const fetchEthnicGroups = async () => {
     try {
         const response = await apiService.get<ICultura[]>('cultures')
         const data: ICultura[] = response.data
+        localStorage.removeItem('selectedCultura');
         const markdownBlocks = data.map((libro) => {
         const url = `http://localhost:5173/cultura/${libro.id}`;
       return `### [${libro.nombre}]\n` +

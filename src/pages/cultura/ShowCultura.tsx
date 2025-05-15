@@ -4,6 +4,7 @@ import { ICultura, IUbicacion } from '@/components/interface'
 import useLocalStorage from '@/hooks/useLocalStorage'
 import {Mapa} from '@/components/ubicacion/Mapa'
 import MainLayout from '@/templates/MainLayout'
+import { useParams } from 'react-router-dom'
 interface IMultimediacultura {
   id_multimedia: number;
   id_cultura: number;
@@ -25,8 +26,20 @@ export const ShowCultura = () => {
   const [comentarios, setComentarios] = React.useState<IComentario[]>([])
   const [nuevoComentario, setNuevoComentario] = React.useState('')
   const [cultura, setshowICultura] = useLocalStorage<ICultura>('selectedCultura',{} as ICultura)
-
+  const { id } = useParams<{ id: string }>()
   React.useEffect(() => {
+    console.log(cultura)
+    if (cultura.id === undefined ) {
+      const getch = async () => { 
+        console.log(id)
+        if (id) {
+          const response = await apiService.get<ICultura>(`cultures/${id}`)
+          setshowICultura(response.data)
+        }
+      }
+      getch()
+    }
+
     const fetchData = async () => {
       try {
         // Fetch multimedia

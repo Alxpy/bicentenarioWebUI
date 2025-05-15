@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/select";
 import UserSettings from "@/components/userSettings/UserSettings";
 import {NavAdm}  from './NavAdm';
-
+import { Notificaciones } from '@/components/Notificaciones';
 const NavUser = () => {
     const [open, setOpen] = useAtom(openUserSettingsAtom);
     const [selectValue, setSelectValue] = useState<string>("");
@@ -66,6 +66,7 @@ const NavUser = () => {
                         <NavAdm />
                     </div>
                 )}
+                <Notificaciones />
                 {/* Botón de hamburguesa con menú */}
                 <Select value={selectValue} onValueChange={handleSelect}>
                     <SelectTrigger className="w-10 h-10 flex items-center justify-center rounded-full border border-gray-600 bg-gray-800 text-gray-200 hover:bg-gray-700 focus:ring-2 focus:ring-gray-500 shadow-md">
@@ -84,6 +85,7 @@ const NavUser = () => {
 
             {/* Modal de configuración de usuario */}
             <UserSettings />
+            
         </>
     );
 };
