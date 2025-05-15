@@ -9,6 +9,7 @@ import { Plus, Trash2, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { apiService } from '@/service/apiservice';
 import { iPatrocinador } from '@/components/interface';
+import useLocalStorage from '@/hooks/useLocalStorage';
 // Esquema de validación
 const patrocinadorSchema = z.object({
   nombre: z.string()
@@ -21,21 +22,29 @@ const patrocinadorSchema = z.object({
 });
 
 interface FormPatrocinadoresProps {
-  eventoId?: string;
+
   onSuccess: () => void;
   onBack: () => void;
   initialData?: iPatrocinador[];
 }
 
-export const FormPatrocinadores = ({ eventoId, onSuccess, onBack, initialData = [] }: FormPatrocinadoresProps) => {
-  const [patrocinadores, setPatrocinadores] = useState<iPatrocinador[]>(initialData);
-  const [allPatrocinadores, setAllPatrocinadores] = useState<iPatrocinador[]>([]);
+export const FormPatrocinadores = ({ onSuccess, onBack, initialData = [] }: FormPatrocinadoresProps) => {
+  const [patrocinadores, setPatrocinadores] = useState<iPatrocinador[]>([]);
+  const [allPatrocinadores, setAllPatrocinadores] = useState<iPatrocinador[]>([
+    {
+      id: 0,
+      nombre: '',
+      contacto: '',
+      imagen: ''
+    }
+  ]);
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [imageMode, setImageMode] = useState<'url' | 'upload'>('url');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState('');
-
+  const [eventoId] = useLocalStorage('idEvento', null);
+  console.log('Evento ID:', eventoId);
   const form = useForm({
     resolver: zodResolver(patrocinadorSchema),
     defaultValues: {
@@ -45,32 +54,55 @@ export const FormPatrocinadores = ({ eventoId, onSuccess, onBack, initialData = 
     }
   });
 
+  const fetchPatrocinadores = async () => {
+    try {
+      setLoading(true);
+
+      // Cargar patrocinadores del evento si hay eventoId
+      if (eventoId) {
+        await apiService.get(`patrocinador_evento/evento/${eventoId}`).then((response: any) => {
+          setPatrocinadores(response.data || []); // Asegurar array vacío si es null
+        }
+        ).catch((error: any) => {
+          toast.error('Error al cargar patrocinadores del evento');
+          console.error('Error:', error);
+        }
+        );
+
+      }
+
+
+
+    } catch (error) {
+      toast.error('Error al cargar patrocinadores');
+      console.error('Error:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchAllPatrocinadores = async () => {
+    await apiService.get('patrocinadores').then((response: any) => {
+      console.log('Todos los patrocinadores:', response);
+      setAllPatrocinadores(response.data);
+    }).catch((error: any) => {
+      toast.error('Error al cargar todos los patrocinadores');
+      console.error('Error:', error);
+    });
+
+  }
+
   // Cargar patrocinadores al montar el componente
   useEffect(() => {
-    const fetchPatrocinadores = async () => {
-      try {
-        setLoading(true);
-        
-        // Cargar patrocinadores del evento si hay eventoId
-        if (eventoId) {
-          const response:any = await apiService.get(`evento_patrocinador/evento/${eventoId}`);
-          setPatrocinadores(response.data);
-        }
-        
-        // Cargar todos los patrocinadores disponibles
-        const allResponse:any = await apiService.get('patrocinadores');
-        setAllPatrocinadores(allResponse.data);
-        
-      } catch (error) {
-        toast.error('Error al cargar patrocinadores');
-        console.error('Error:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
+    // Cargar todos los patrocinadores disponibles
+
 
     fetchPatrocinadores();
   }, [eventoId]);
+
+  useEffect(() => {
+    fetchAllPatrocinadores();
+  }, []);
 
   // Manejar cambio de archivo de imagen
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -81,7 +113,7 @@ export const FormPatrocinadores = ({ eventoId, onSuccess, onBack, initialData = 
         toast.error('El archivo debe ser una imagen');
         return;
       }
-      
+
       if (file.size > 10 * 1024 * 1024) { // 10MB
         toast.error('La imagen no puede exceder los 10MB');
         return;
@@ -99,7 +131,7 @@ export const FormPatrocinadores = ({ eventoId, onSuccess, onBack, initialData = 
     formData.append('file', file);
 
     try {
-      const response:any = await apiService.postFiles('files/upload?max_file_size=10485760', formData);
+      const response: any = await apiService.postFiles('files/upload?max_file_size=10485760', formData);
       return response.data.file_url;
     } catch (error) {
       toast.error('Error subiendo imagen');
@@ -111,10 +143,10 @@ export const FormPatrocinadores = ({ eventoId, onSuccess, onBack, initialData = 
   const addPatrocinador = async (data: { nombre: string; contacto: string; imagen?: string }) => {
     try {
       setIsSubmitting(true);
-      
+
       // Subir imagen si se seleccionó un archivo
-      let imageUrl = data.imagen === '#uploaded-file' && selectedFile 
-        ? await uploadImage(selectedFile) 
+      let imageUrl = data.imagen === '#uploaded-file' && selectedFile
+        ? await uploadImage(selectedFile)
         : data.imagen;
 
       // Crear el patrocinador
@@ -123,19 +155,19 @@ export const FormPatrocinadores = ({ eventoId, onSuccess, onBack, initialData = 
         contacto: data.contacto,
         imagen: imageUrl || ''
       });
-      const newPatrocinador : any = response.data;
-      
+      const newPatrocinador: any = response.data;
+      console.log('Nuevo patrocinador:', newPatrocinador);
       // Si hay un eventoId, asociarlo al evento
       if (eventoId) {
-        await apiService.post(`evento_patrocinador/evento`, {
-          evento_id: eventoId,
-          patrocinador_id: newPatrocinador.id
+        await apiService.post(`patrocinador_evento`, {
+          id_evento: eventoId,
+          id_patrocinador: newPatrocinador.id
         });
       }
-      
+
       // Actualizar la lista
-      setPatrocinadores([...patrocinadores, newPatrocinador]);
-      setAllPatrocinadores([...allPatrocinadores, newPatrocinador]);
+      fetchAllPatrocinadores();
+      fetchPatrocinadores();
       form.reset();
       setSelectedFile(null);
       setPreviewUrl('');
@@ -155,18 +187,19 @@ export const FormPatrocinadores = ({ eventoId, onSuccess, onBack, initialData = 
         toast.warning('No se puede asociar patrocinador sin evento');
         return;
       }
-      
+
       // Verificar si ya está asociado
       if (patrocinadores.some(p => p.id === patrocinadorId)) {
         toast.info('Este patrocinador ya está asociado al evento');
         return;
       }
-      
+
       // Asociar al evento
-      await apiService.post(`evento_patrocinador/evento/${eventoId}`, {
-        patrocinador_id: patrocinadorId
+      await apiService.post(`patrocinador_evento`, {
+        id_evento: eventoId,
+          id_patrocinador:  patrocinadorId
       });
-      
+
       // Encontrar el patrocinador en la lista completa
       const patrocinadorToAdd = allPatrocinadores.find(p => p.id === patrocinadorId);
       if (patrocinadorToAdd) {
@@ -188,10 +221,10 @@ export const FormPatrocinadores = ({ eventoId, onSuccess, onBack, initialData = 
         toast.info('Patrocinador eliminado');
         return;
       }
-      
+
       // Eliminar la relación evento-patrocinador
       await apiService.delete(`evento_patrocinador/${eventoId}/${patrocinadorId}`);
-      
+
       // Actualizar la lista
       setPatrocinadores(patrocinadores.filter(p => p.id !== patrocinadorId));
       toast.success('Patrocinador eliminado del evento');
@@ -212,7 +245,7 @@ export const FormPatrocinadores = ({ eventoId, onSuccess, onBack, initialData = 
   return (
     <div className="space-y-6">
       <h2 className="text-xl font-semibold">Gestión de Patrocinadores</h2>
-      
+
       {/* Formulario para agregar nuevo patrocinador */}
       <Form {...form}>
         <form onSubmit={form.handleSubmit((data) => addPatrocinador({ ...data, imagen: data.imagen || '' }))} className="space-y-4">
@@ -223,10 +256,10 @@ export const FormPatrocinadores = ({ eventoId, onSuccess, onBack, initialData = 
                 <FormItem>
                   <FormLabel>Nombre *</FormLabel>
                   <FormControl>
-                    <Input 
-                      {...field} 
-                      placeholder="Nombre del patrocinador" 
-                      disabled={isSubmitting} 
+                    <Input
+                      {...field}
+                      placeholder="Nombre del patrocinador"
+                      disabled={isSubmitting}
                     />
                   </FormControl>
                   <FormMessage />
@@ -239,10 +272,10 @@ export const FormPatrocinadores = ({ eventoId, onSuccess, onBack, initialData = 
                 <FormItem>
                   <FormLabel>Contacto *</FormLabel>
                   <FormControl>
-                    <Input 
-                      {...field} 
-                      placeholder="Email o teléfono" 
-                      disabled={isSubmitting} 
+                    <Input
+                      {...field}
+                      placeholder="Email o teléfono"
+                      disabled={isSubmitting}
                     />
                   </FormControl>
                   <FormMessage />
@@ -254,7 +287,7 @@ export const FormPatrocinadores = ({ eventoId, onSuccess, onBack, initialData = 
           {/* Sección de Imagen */}
           <div className="space-y-4 rounded-lg border bg-muted/20 p-4">
             <h3 className="text-base font-medium">Logo del Patrocinador</h3>
-            
+
             <div className="flex gap-3">
               <Button
                 type="button"
@@ -330,18 +363,18 @@ export const FormPatrocinadores = ({ eventoId, onSuccess, onBack, initialData = 
               </div>
             )}
           </div>
-          
+
           <div className="flex justify-end gap-2">
-            <Button 
-              type="button" 
-              variant="outline" 
+            <Button
+              type="button"
+              variant="outline"
               onClick={onBack}
               disabled={isSubmitting}
             >
               Volver
             </Button>
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               className="bg-blue-600 hover:bg-blue-700"
               disabled={isSubmitting}
             >
@@ -366,8 +399,8 @@ export const FormPatrocinadores = ({ eventoId, onSuccess, onBack, initialData = 
               <div key={patrocinador.id} className="rounded-lg border p-4 flex flex-col">
                 {patrocinador.imagen && (
                   <div className="h-20 mb-2 flex items-center justify-center">
-                    <img 
-                      src={patrocinador.imagen} 
+                    <img
+                      src={patrocinador.imagen}
                       alt={patrocinador.nombre}
                       className="max-h-full max-w-full object-contain"
                     />
@@ -398,8 +431,8 @@ export const FormPatrocinadores = ({ eventoId, onSuccess, onBack, initialData = 
               <div key={patrocinador.id} className="rounded-lg border p-4 flex flex-col">
                 {patrocinador.imagen && (
                   <div className="h-20 mb-2 flex items-center justify-center">
-                    <img 
-                      src={patrocinador.imagen} 
+                    <img
+                      src={patrocinador.imagen}
                       alt={patrocinador.nombre}
                       className="max-h-full max-w-full object-contain"
                     />
@@ -420,9 +453,9 @@ export const FormPatrocinadores = ({ eventoId, onSuccess, onBack, initialData = 
               </div>
             ))}
           </div>
-          
+
           <div className="flex justify-end">
-            <Button 
+            <Button
               onClick={onSuccess}
               className="bg-amber-600 hover:bg-amber-700"
             >

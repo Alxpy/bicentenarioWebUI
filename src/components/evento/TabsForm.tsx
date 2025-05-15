@@ -15,18 +15,19 @@ import { ChevronLeft, ChevronRight } from 'lucide-react'
 export const TabsForm = () => {
   const [activeTab, setActiveTab] = useState('general')
   const [eventoData, setEventoData] = useLocalStorage<iEventoCreate>('eventoFormData', {
+    
     nombre: '',
     descripcion: '',
     imagen: '',
     fecha_inicio: '',
     fecha_fin: '',
     id_tipo_evento: 0,
-    precio: '',
-    modalidad: '',
+    precio: 0,
+    categoria: '',
     enlace: '',
     id_ubicacion: 0,
-    id_usuario: 0,
-    id_organizador: 0,
+    id_usuario: 2,
+    id_organizador: 2,
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -119,7 +120,6 @@ export const TabsForm = () => {
             <TabsTrigger value="feat">Características</TabsTrigger>
             <TabsTrigger value="expositores">Expositores</TabsTrigger>
             <TabsTrigger value="patrocinadores">Patrocinadores</TabsTrigger>
-            <TabsTrigger value="ubicacion">Ubicación</TabsTrigger>
           </TabsList>
         </div>
 
@@ -130,7 +130,6 @@ export const TabsForm = () => {
             <TabsTrigger value="feat" className="flex-1">Características</TabsTrigger>
             <TabsTrigger value="expositores" className="flex-1">Expositores</TabsTrigger>
             <TabsTrigger value="patrocinadores" className="flex-1">Patrocinadores</TabsTrigger>
-            <TabsTrigger value="ubicacion" className="flex-1">Ubicación</TabsTrigger>
           </TabsList>
         </div>
 
@@ -171,11 +170,6 @@ export const TabsForm = () => {
           />
         </TabsContent>
 
-        <TabsContent value="ubicacion">
-          <MapaInteractivo 
-            onSucces={handleFinalSubmit}
-          />
-        </TabsContent>
       </Tabs>
       </div>
 

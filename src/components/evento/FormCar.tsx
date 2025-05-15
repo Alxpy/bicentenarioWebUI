@@ -1,137 +1,131 @@
 import { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import { Button } from '@/components/ui/button';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { apiService } from '@/service/apiservice';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import useLocalStorage from '@/hooks/useLocalStorage';
 import { MapaInteractivo } from '@/components/ubicacion/MapaInteractivo';
+import { ca, id } from 'date-fns/locale';
 
-interface iTipoEvento {
+interface TipoEvento {
   id: number;
   nombre_evento: string;
 }
 
-interface iUbicacion {
-  id: number;
-  // otras propiedades de ubicación si las hay
-}
-
 interface FormCarProps {
-  onSuccess: (data: { 
-    id_tipo_evento?: number; 
-    modalidad?: string; 
+  onSuccess: (data: {
+    id_tipo_evento: number;
+    categoria: 'presencial' | 'virtual';
     enlace?: string;
     id_ubicacion?: number;
   }) => void;
   onBack: () => void;
   initialData?: {
+    id?: number;
+    nombre?: string;
+    descripcion?: string;
+    imagen?: string;
+    fecha_inicio?: string;
+    fecha_fin?: string;
+    precio?: number;
+    nombre_evento?: string;
+    id_usuario?: number;
+    id_organizador?: number;
+    
     id_tipo_evento?: number;
-    modalidad?: string;
+    categoria?: 'presencial' | 'virtual';
     enlace?: string;
     id_ubicacion?: number;
   };
 }
 
-const formSchema = z.object({
-  id_tipo_evento: z.number({
-    required_error: "Seleccione un tipo de evento",
-    invalid_type_error: "Seleccione un tipo válido"
-  }).min(1, "Seleccione un tipo de evento"),
-  modalidad: z.enum(['presencial', 'virtual'], {
-    required_error: "Seleccione una modalidad",
-  }),
-  enlace: z.string().superRefine((val, ctx) => {
-    if (ctx.parent.modalidad === 'virtual') {
-      if (!val) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: "Enlace es requerido para eventos virtuales",
-        });
-      } else if (!z.string().url().safeParse(val).success) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: "Ingrese una URL válida",
-        });
-      }
-    }
-    return z.void();
-  }).optional(),
-  id_ubicacion: z.number().optional()
-});
-
-type FormValues = z.infer<typeof formSchema>;
-
 export const FormCar = ({ onSuccess, onBack, initialData }: FormCarProps) => {
-  const [tipoEventos, setTipoEventos] = useState<iTipoEvento[]>([]);
+  const [tiposEvento, setTiposEvento] = useState<TipoEvento[]>([]);
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [ubicacion, setUbicacion] = useLocalStorage<iUbicacion | null>('ubicacion', null);
-
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      id_tipo_evento: initialData?.id_tipo_evento || undefined,
-      modalidad: initialData?.modalidad as 'presencial' | 'virtual' || undefined,
-      enlace: initialData?.enlace || '',
-      id_ubicacion: initialData?.id_ubicacion || undefined
-    }
+  const [formState, setFormState] = useState({
+    id_tipo_evento: initialData?.id_tipo_evento || 0,
+    categoria: initialData?.categoria || 'presencial' as 'presencial' | 'virtual',
+    enlace: initialData?.enlace || '',
+    id_ubicacion: initialData?.id_ubicacion || 0
   });
 
-  const modalidad = form.watch('modalidad');
-
-  // Cargar tipos de evento al montar el componente
   useEffect(() => {
-    const fetchTipoEventos = async () => {
+    const cargarTiposEvento = async () => {
       try {
-        const response: any = await apiService.get('tipo_evento');
-        setTipoEventos(response.data);
+        const response = await apiService.get<{ data: TipoEvento[] }>('tipo_evento');
+        setTiposEvento(response.data);
+        setLoading(false);
       } catch (error) {
-        toast.error('Error al cargar tipos de evento');
+        toast.error('Error cargando tipos de evento');
         console.error('Error:', error);
-      } finally {
         setLoading(false);
       }
     };
 
-    fetchTipoEventos();
+    cargarTiposEvento();
   }, []);
 
-  // Cargar ubicación inicial si existe
-  useEffect(() => {
-    if (ubicacion) {
-      form.setValue('id_ubicacion', ubicacion.id);
-    }
-  }, [ubicacion, form]);
+  const handleInputChange = (field: string, value: string | number) => {
+    setFormState(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
 
-  const handleUbicacionSuccess = () => {
-    
-    form.setValue('id_ubicacion', ubicacion.id);
+  const handleUbicacionExitosa = () => {
+    handleInputChange('id_ubicacion', JSON.parse(localStorage.getItem('ubicacion') || '').id);
     toast.success('Ubicación guardada');
   };
 
-  const onSubmit = async (values: FormValues) => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
     try {
-      setIsSubmitting(true);
-      
-      // Preparar datos para enviar
-      const data = {
-        id_tipo_evento: values.id_tipo_evento,
-        modalidad: values.modalidad,
-        ...(values.modalidad === 'virtual' && { enlace: values.enlace }),
-        ...(values.modalidad === 'presencial' && { id_ubicacion: values.id_ubicacion })
+      const payload = {
+        id_tipo_evento: formState.id_tipo_evento,
+        categoria: formState.categoria,
+        ...(formState.categoria === 'virtual' && { enlace: formState.enlace }),
+        ...(formState.categoria === 'presencial' && { id_ubicacion: formState.id_ubicacion })
       };
 
-      onSuccess(data);
-      toast.success('Configuración guardada');
+      // Simular llamada API
+      console.log('Datos enviados:', payload);
+      await apiService.post('evento', {
+        nombre: initialData?.nombre || '',
+        descripcion: initialData?.descripcion || '',
+        imagen: initialData?.imagen || '',
+        fecha_inicio: initialData?.fecha_inicio || '',
+        fecha_fin: initialData?.fecha_fin || '',
+        id_tipo_evento: formState.id_tipo_evento,
+        id_ubicacion: formState.id_ubicacion,
+        precio: initialData?.precio || 0,
+        nombre_evento: initialData?.nombre_evento || '',
+        id_usuario: initialData?.id_usuario || 2,
+        id_organizador: initialData?.id_organizador || 2,
+        categoria: formState.categoria,
+        enlace: formState.enlace        
+
+      }).then((response) => {
+        console.log('Respuesta de la API:', response);
+          localStorage.setItem('idEvento', response.data.id);
+          toast.success('Evento guardado correctamente');
+        
+      }
+      ).catch((error) => {
+        console.error('Error al guardar el evento:', error);
+        toast.error('Error al guardar el evento');
+      });
+      // Llamada real a la API
+      // await apiService.post('evento', payload);
+      
+      onSuccess(payload);
+      toast.success('Evento guardado correctamente');
     } catch (error) {
       console.error('Error:', error);
-      toast.error('Error al guardar la configuración');
+      toast.error('Error al guardar el evento');
     } finally {
       setIsSubmitting(false);
     }
@@ -146,134 +140,91 @@ export const FormCar = ({ onSuccess, onBack, initialData }: FormCarProps) => {
   }
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        {/* Tipo de Evento */}
-        <FormField
-          control={form.control}
-          name="id_tipo_evento"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Tipo de Evento *</FormLabel>
-              <Select
-                onValueChange={(value) => field.onChange(Number(value))}
-                value={field.value?.toString()}
-                disabled={isSubmitting}
-              >
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Seleccione un tipo de evento" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {tipoEventos.map((tipo) => (
-                    <SelectItem key={tipo.id} value={tipo.id.toString()}>
-                      {tipo.nombre_evento}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+    <div className="space-y-6">
+      {/* Tipo de Evento */}
+      <div className="space-y-2">
+        <label className="text-sm font-medium">Tipo de Evento *</label>
+        <Select
+          value={formState.id_tipo_evento.toString()}
+          onValueChange={value => handleInputChange('id_tipo_evento', Number(value))}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Seleccione tipo" />
+          </SelectTrigger>
+          <SelectContent>
+            {tiposEvento.map(tipo => (
+              <SelectItem key={tipo.id} value={tipo.id.toString()}>
+                {tipo.nombre_evento}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
 
-        {/* Modalidad */}
-        <FormField
-          control={form.control}
-          name="modalidad"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Modalidad *</FormLabel>
-              <Select
-                onValueChange={field.onChange}
-                value={field.value}
-                disabled={isSubmitting}
-              >
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Seleccione la modalidad" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value="presencial">Presencial</SelectItem>
-                  <SelectItem value="virtual">Virtual</SelectItem>
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+      {/* Categoría */}
+      <div className="space-y-2">
+        <label className="text-sm font-medium">Categoría *</label>
+        <Select
+          value={formState.categoria}
+          onValueChange={value => handleInputChange('categoria', value as 'presencial' | 'virtual')}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Seleccione categoría" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="presencial">Presencial</SelectItem>
+            <SelectItem value="virtual">Virtual</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
 
-        {/* Enlace (condicional para virtual) o Mapa (para presencial) */}
-        {modalidad === 'virtual' ? (
-          <FormField
-            control={form.control}
-            name="enlace"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Enlace de la reunión virtual *</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="https://meet.google.com/xxx-yyyy-zzz"
-                    {...field}
-                    disabled={isSubmitting}
-                  />
-                </FormControl>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Ingrese el enlace de Zoom, Google Meet, Teams, etc.
-                </p>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        ) : (
-          <div className="space-y-2">
-            <FormLabel>Ubicación del evento *</FormLabel>
-            <div className="rounded-lg border p-4">
-              <MapaInteractivo 
-                onSucces={handleUbicacionSuccess}
-              />
-            </div>
-            {form.formState.errors.id_ubicacion && (
-              <p className="text-sm font-medium text-destructive">
-                {form.formState.errors.id_ubicacion.message}
-              </p>
-            )}
-            {ubicacion && (
-              <p className="text-sm text-muted-foreground">
-                Ubicación seleccionada correctamente
-              </p>
-            )}
-          </div>
-        )}
-
-        {/* Botones de acción */}
-        <div className="flex justify-between pt-4">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={onBack}
+      {formState.categoria === 'virtual' ? (
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Enlace de reunión *</label>
+          <Input
+            placeholder="https://meet.example.com"
+            value={formState.enlace}
+            onChange={(e) => handleInputChange('enlace', e.target.value)}
             disabled={isSubmitting}
-          >
-            Volver
-          </Button>
-          <Button
-            type="submit"
-            disabled={isSubmitting || (modalidad === 'presencial' && !ubicacion)}
-            className="bg-amber-600 hover:bg-amber-700"
-          >
-            {isSubmitting ? (
-              <span className="flex items-center gap-2">
-                <Loader2 className="h-4 w-4 animate-spin" />
-                Guardando...
-              </span>
-            ) : (
-              'Continuar'
-            )}
-          </Button>
+          />
         </div>
-      </form>
-    </Form>
+      ) : (
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Ubicación *</label>
+          <div className="rounded-lg border p-4">
+            <MapaInteractivo 
+              onSucces={handleUbicacionExitosa}
+              ubicacionInicial={formState.id_ubicacion}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Botones */}
+      <div className="flex justify-between pt-4">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onBack}
+          disabled={isSubmitting}
+        >
+          Volver
+        </Button>
+        <Button
+          disabled={isSubmitting}
+          className="bg-amber-600 hover:bg-amber-700"
+          onClick={handleSubmit}
+        >
+          {isSubmitting ? (
+            <span className="flex items-center gap-2">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Guardando...
+            </span>
+          ) : (
+            'Guardar Evento'
+          )}
+        </Button>
+      </div>
+    </div>
   );
 };

@@ -8,19 +8,13 @@ import { z } from 'zod';
 import { Plus, Trash2, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { apiService } from '@/service/apiservice';
+import useLocalStorage from '@/hooks/useLocalStorage';
 
 // Esquema de validación
 const expositorSchema = z.object({
   nombre: z.string()
     .min(3, 'Nombre debe tener al menos 3 caracteres')
     .max(100, 'Nombre no puede exceder los 100 caracteres'),
-  titulo: z.string()
-    .min(3, 'Título debe tener al menos 3 caracteres')
-    .max(100, 'Título no puede exceder los 100 caracteres'),
-  bio: z.string()
-    .min(10, 'Biografía debe tener al menos 10 caracteres')
-    .max(500, 'Biografía no puede exceder los 500 caracteres'),
-  foto: z.string().url('Debe ser una URL válida').optional(),
 });
 
 interface iExpositor {
@@ -29,17 +23,16 @@ interface iExpositor {
 }
 
 interface FormExpositoresProps {
-  eventoId?: string; // ID del evento para asociar expositores
   onSuccess: () => void;
   onBack: () => void;
 }
 
-export const FormExpositores = ({ eventoId, onSuccess, onBack }: FormExpositoresProps) => {
+export const FormExpositores = ({ onSuccess, onBack }: FormExpositoresProps) => {
   const [expositores, setExpositores] = useState<iExpositor[]>([]);
   const [allExpositores, setAllExpositores] = useState<iExpositor[]>([]);
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
+  const [eventoId] = useLocalStorage('idEvento', null);
   const form = useForm({
     resolver: zodResolver(expositorSchema),
     defaultValues: {
@@ -47,22 +40,21 @@ export const FormExpositores = ({ eventoId, onSuccess, onBack }: FormExpositores
     }
   });
 
-  // Cargar expositores del evento y todos los expositores disponibles
-  useEffect(() => {
-    const fetchExpositores = async () => {
+      const fetchExpositores = async () => {
       try {
         setLoading(true);
-        
-        // Si hay un eventoId, cargar sus expositores
-        if (eventoId) {
-          const response : any = await apiService.get(`evento_expositor/evento/${eventoId}`);
+
+        // Usar eventoId[0] si el hook devuelve un array [value, setter]
+        const currentEventoId = Array.isArray(eventoId) ? eventoId[0] : eventoId;
+
+        if (currentEventoId) {
+          const response: any = await apiService.get(`expositor/byEventoId/${currentEventoId}`);
           setExpositores(response.data);
         }
-        
-        // Cargar todos los expositores disponibles
-        const allResponse :any = await apiService.get('expositores');
+
+        const allResponse: any = await apiService.get('expositor');
         setAllExpositores(allResponse.data);
-        
+
       } catch (error) {
         toast.error('Error al cargar expositores');
         console.error('Error:', error);
@@ -71,29 +63,33 @@ export const FormExpositores = ({ eventoId, onSuccess, onBack }: FormExpositores
       }
     };
 
+  // Cargar expositores del evento y todos los expositores disponibles
+  useEffect(() => {
+
+
     fetchExpositores();
-  }, [eventoId]);
+    // Añadir dependencia correcta
+  }, [eventoId]); // Acceder al primer elemento del array si es necesario
 
   // Agregar un nuevo expositor
-  const addExpositor = async (data: Omit<iExpositor, 'id'>) => {
+  const addExpositor = async (data:any) => {
     try {
       setIsSubmitting(true);
-      
+      console.log('Evento ID:', eventoId);
       // Crear el expositor
-      const response = await apiService.post('expositores', data);
+      const response = await apiService.post('expositor', {
+        nombre: data.nombre,
+      });
       const newExpositor: any = response.data;
-      
+      console.log('Nuevo expositor:', newExpositor);
       // Si hay un eventoId, asociarlo al evento
       if (eventoId) {
-        await apiService.post(`evento_expositor/evento`, {
-          evento_id: eventoId,
-          expositor_id: newExpositor.id
+        await apiService.post(`expositor/evento/${eventoId}/expositor/${newExpositor.id}`, {
+
         });
       }
-      
+
       // Actualizar la lista
-      setExpositores([...expositores, newExpositor]);
-      setAllExpositores([...allExpositores, newExpositor]);
       form.reset();
       toast.success('Expositor agregado correctamente');
     } catch (error) {
@@ -113,10 +109,10 @@ export const FormExpositores = ({ eventoId, onSuccess, onBack }: FormExpositores
         toast.info('Expositor eliminado');
         return;
       }
-      
+
       // Eliminar la relación evento-expositor
-      await apiService.delete(`evento_expositor/${eventoId}/${expositorId}`);
-      
+      await apiService.delete(`expositor/evento/${eventoId}/expositor/${expositorId}`);
+
       // Actualizar la lista
       setExpositores(expositores.filter(e => e.id !== expositorId));
       toast.success('Expositor eliminado del evento');
@@ -134,18 +130,18 @@ export const FormExpositores = ({ eventoId, onSuccess, onBack }: FormExpositores
         toast.warning('No se puede asociar expositor sin evento');
         return;
       }
-      
+
       // Verificar si ya está asociado
       if (expositores.some(e => e.id === expositorId)) {
         toast.info('Este expositor ya está asociado al evento');
         return;
       }
-      
+
       // Asociar al evento
-      await apiService.post(`evento_expositor/evento/${eventoId}`, {
+      await apiService.post(`expositor/evento/${eventoId}/expositor/${expositorId}`, {
         expositor_id: expositorId
       });
-      
+
       // Encontrar el expositor en la lista completa
       const expositorToAdd = allExpositores.find(e => e.id === expositorId);
       if (expositorToAdd) {
@@ -169,7 +165,7 @@ export const FormExpositores = ({ eventoId, onSuccess, onBack }: FormExpositores
   return (
     <div className="space-y-6">
       <h2 className="text-xl font-semibold">Gestión de Expositores</h2>
-      
+
       {/* Formulario para agregar nuevo expositor */}
       <Form {...form}>
         <form onSubmit={form.handleSubmit(addExpositor)} className="space-y-4">
@@ -180,26 +176,10 @@ export const FormExpositores = ({ eventoId, onSuccess, onBack }: FormExpositores
                 <FormItem>
                   <FormLabel>Nombre *</FormLabel>
                   <FormControl>
-                    <Input 
-                      {...field} 
-                      placeholder="Nombre completo" 
-                      disabled={isSubmitting} 
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              name="titulo"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Título *</FormLabel>
-                  <FormControl>
-                    <Input 
-                      {...field} 
-                      placeholder="Título profesional" 
-                      disabled={isSubmitting} 
+                    <Input
+                      {...field}
+                      placeholder="Nombre completo"
+                      disabled={isSubmitting}
                     />
                   </FormControl>
                   <FormMessage />
@@ -207,53 +187,18 @@ export const FormExpositores = ({ eventoId, onSuccess, onBack }: FormExpositores
               )}
             />
           </div>
-          
-          <FormField
-            name="bio"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Biografía *</FormLabel>
-                <FormControl>
-                  <textarea
-                    {...field}
-                    className="flex h-32 w-full rounded-lg border bg-muted/50 px-3 py-2 text-sm"
-                    placeholder="Breve biografía del expositor"
-                    disabled={isSubmitting}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          
-          <FormField
-            name="foto"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Foto (URL)</FormLabel>
-                <FormControl>
-                  <Input 
-                    {...field} 
-                    placeholder="https://ejemplo.com/foto.jpg" 
-                    disabled={isSubmitting} 
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          
+
           <div className="flex justify-end gap-2">
-            <Button 
-              type="button" 
-              variant="outline" 
+            <Button
+              type="button"
+              variant="outline"
               onClick={onBack}
               disabled={isSubmitting}
             >
               Volver
             </Button>
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               className="bg-blue-600 hover:bg-blue-700"
               disabled={isSubmitting}
             >
@@ -269,30 +214,29 @@ export const FormExpositores = ({ eventoId, onSuccess, onBack }: FormExpositores
       </Form>
 
       {/* Sección para agregar expositores existentes */}
-      <div className="space-y-4">
-        <h3 className="text-lg font-medium">Agregar Expositor Existente</h3>
-        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3">
-          {allExpositores
-            .filter(e => !expositores.some(exp => exp.id === e.id))
-            .map(expositor => (
-              <div key={expositor.id} className="rounded-lg border p-4 flex justify-between items-center">
-                <div>
-                  <h4 className="font-medium">{expositor.nombre}</h4>
-                  <p className="text-sm text-muted-foreground">{expositor.titulo}</p>
-                </div>
-                <Button
-                  size="sm"
-                  onClick={() => addExistingExpositor(expositor.id)}
-                >
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </div>
-            ))}
+     <div className="space-y-4">
+  <h3 className="text-lg font-medium">Agregar Expositor Existente</h3>
+  <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3">
+    {allExpositores
+      .filter(e => !(expositores || []).some((exp: iExpositor) => exp.id === e.id))
+      .map(expositor => (
+        <div key={expositor.id} className="rounded-lg border p-4 flex justify-between items-center">
+          <div>
+            <h4 className="font-medium">{expositor.nombre}</h4>
+          </div>
+          <Button
+            size="sm"
+            onClick={() => addExistingExpositor(expositor.id)}
+          >
+            <Plus className="h-4 w-4" />
+          </Button>
         </div>
-      </div>
+      ))}
+  </div>
+</div>
 
       {/* Lista de expositores asociados */}
-      {expositores.length > 0 && (
+      {expositores && (
         <div className="space-y-4">
           <h3 className="text-lg font-medium">Expositores Asociados</h3>
           <div className="space-y-2">
@@ -300,10 +244,7 @@ export const FormExpositores = ({ eventoId, onSuccess, onBack }: FormExpositores
               <div key={expositor.id} className="flex items-center justify-between rounded-lg border p-4">
                 <div>
                   <h4 className="font-medium">{expositor.nombre}</h4>
-                  <p className="text-sm text-muted-foreground">{expositor.titulo}</p>
-                  {expositor.bio && (
-                    <p className="text-sm mt-1 line-clamp-2">{expositor.bio}</p>
-                  )}
+
                 </div>
                 <Button
                   variant="ghost"
@@ -315,9 +256,9 @@ export const FormExpositores = ({ eventoId, onSuccess, onBack }: FormExpositores
               </div>
             ))}
           </div>
-          
+
           <div className="flex justify-end">
-            <Button 
+            <Button
               onClick={onSuccess}
               className="bg-amber-600 hover:bg-amber-700"
             >

@@ -11,8 +11,12 @@ const containerStyle = {
 };
 
 const center = { lat: -16.5, lng: -68.15 };
+interface Ubicacion {
+  id: number;
+  // Otras propiedades según necesidad
+}
 
-export const MapaInteractivo = ({onSucces}:{onSucces?:() => void}) => {
+export const MapaInteractivo = ({onSucces}:{onSucces?:(ubicacion: Ubicacion) => void}) => {
   // Estados del mapa y ubicación
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: import.meta.env.VITE_BASE_MAPS_API_KEY as string,
@@ -46,7 +50,9 @@ export const MapaInteractivo = ({onSucces}:{onSucces?:() => void}) => {
         console.log(res)
         localStorage.setItem('ubicacion', JSON.stringify(res.data));
         setMensaje('✅ Ubicación guardada con éxito');
-        onSucces && onSucces();
+        onSucces && onSucces({
+          id: res.data
+        });
       }).catch( (error) => {
       console.error('Error al guardar ubicación:', error);
       setMensaje('❌ Error al guardar la ubicación');

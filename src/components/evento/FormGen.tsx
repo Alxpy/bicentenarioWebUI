@@ -20,18 +20,16 @@ const formSchema = z.object({
     .max(500, 'Descripción no puede exceder los 500 caracteres'),
   imagen: z.string().url('Debe ser una URL válida').or(z.literal('')).optional(),
   fecha_inicio: z.string()
-    .refine(val => !val || !isNaN(new Date(val).getTime()), { 
-      message: 'Fecha inválida' 
+    .refine(val => !val || !isNaN(new Date(val).getTime()), {
+      message: 'Fecha inválida'
     }),
   fecha_fin: z.string()
-    .refine(val => !val || !isNaN(new Date(val).getTime()), { 
-      message: 'Fecha inválida' 
+    .refine(val => !val || !isNaN(new Date(val).getTime()), {
+      message: 'Fecha inválida'
     }),
-  precio: z.string()
-    .refine(val => !val || /^\d+(\.\d{1,2})?$/.test(val), {
-      message: 'Precio debe ser un número con hasta 2 decimales'
-    })
-    .optional(),
+   precio: z.coerce.number()
+    .optional()
+    .transform(val => Number(val.toFixed(2))),
 }).refine(data => {
   // Validar que fecha_fin no sea anterior a fecha_inicio
   if (data.fecha_inicio && data.fecha_fin) {
@@ -64,7 +62,7 @@ export const FormGen = ({ onSuccess, initialData }: FormEventoProps) => {
       imagen: initialData?.imagen || '',
       fecha_inicio: initialData?.fecha_inicio?.split('T')[0] || '',
       fecha_fin: initialData?.fecha_fin?.split('T')[0] || '',
-      precio: initialData?.precio || '',
+      precio: initialData?.precio || 0,
     }
   });
 
@@ -77,9 +75,9 @@ export const FormGen = ({ onSuccess, initialData }: FormEventoProps) => {
         imagen: initialData.imagen || '',
         fecha_inicio: initialData.fecha_inicio?.split('T')[0] || '',
         fecha_fin: initialData.fecha_fin?.split('T')[0] || '',
-        precio: initialData.precio || '',
+        precio: initialData.precio || 0,
       });
-      
+
       if (initialData.imagen) {
         setPreviewUrl(initialData.imagen);
         setImageMode('url');
@@ -95,7 +93,7 @@ export const FormGen = ({ onSuccess, initialData }: FormEventoProps) => {
         toast.error('El archivo debe ser una imagen');
         return;
       }
-      
+
       if (file.size > 10 * 1024 * 1024) { // 10MB
         toast.error('La imagen no puede exceder los 10MB');
         return;
@@ -123,10 +121,10 @@ export const FormGen = ({ onSuccess, initialData }: FormEventoProps) => {
   const handleSubmit = async (values: FormValues) => {
     try {
       setIsSubmitting(true);
-      
+
       // Subir imagen si se seleccionó un archivo
-      let imageUrl = values.imagen === '#uploaded-file' && selectedFile 
-        ? await uploadImage(selectedFile) 
+      let imageUrl = values.imagen === '#uploaded-file' && selectedFile
+        ? await uploadImage(selectedFile)
         : values.imagen;
 
       // Preparar payload
@@ -241,7 +239,7 @@ export const FormGen = ({ onSuccess, initialData }: FormEventoProps) => {
         {/* Sección de Imagen */}
         <div className="space-y-4 rounded-lg border bg-muted/20 p-4">
           <h3 className="text-base font-medium">Imagen del Evento</h3>
-          
+
           <div className="flex gap-3">
             <Button
               type="button"
@@ -332,9 +330,15 @@ export const FormGen = ({ onSuccess, initialData }: FormEventoProps) => {
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
                   <Input
                     placeholder="0.00"
+                    type="number"
+                    step="0.01"
                     {...field}
                     disabled={isSubmitting}
                     className="rounded-lg bg-muted/50 pl-8"
+                    onChange={(e) => {
+                      const value = parseFloat(e.target.value);
+                      field.onChange(isNaN(value) ? 0 : value);
+                    }}
                   />
                 </div>
               </FormControl>

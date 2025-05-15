@@ -25,8 +25,8 @@ export interface iEventoCreate{
     fecha_inicio: string
     fecha_fin: string
     id_tipo_evento: number
-    precio: string
-    modalidad: string
+    precio: number
+    categoria: string
     enlace: string
     id_ubicacion: number
     id_usuario: number
