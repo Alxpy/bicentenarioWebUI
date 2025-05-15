@@ -15,6 +15,8 @@ export interface iEvento{
     nombre_usuario: string
     id_organizador: number
     nombre_organizador: string
+    categoria: string
+    enlace: string
     
 }
 

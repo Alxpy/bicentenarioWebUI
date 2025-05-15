@@ -9,12 +9,14 @@ import MainLayout from '@/templates/MainLayout';
 import useLocalStorage from '@/hooks/useLocalStorage';
 import { useNavigate } from 'react-router-dom';
 
+
+
 export const EventosList = () => {
   const navigate = useNavigate();
   const [eventos, setEventos] = React.useState<iEvento[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [refreshing, setRefreshing] = React.useState(false);
-
+  
   const [selectedEvento, setSelectedEvento] = useLocalStorage<iEvento | null>('selectedEvento', null);
 
   const formatDateToDDMMYYYY = (isoDate: string): string => {
@@ -43,6 +45,8 @@ export const EventosList = () => {
       setRefreshing(false);
     }
   };
+
+  
 
   React.useEffect(() => {
     fetchEventos();
@@ -100,10 +104,10 @@ export const EventosList = () => {
                     {formatDateToDDMMYYYY(evento.fecha_inicio)} - {formatDateToDDMMYYYY(evento.fecha_fin)}
                   </span>
                 </div>
-                <div className="flex items-center gap-2 text-sm">
-                  <MapPin className="h-4 w-4 text-muted-foreground" />
-                  <span>{evento.nombre_ubicacion}</span>
-                </div>
+                 <div className="flex items-center gap-2 text-sm">
+                    <MapPin className="h-4 w-4 text-muted-foreground" />
+                    <span>Modalidad: {evento.categoria}</span>
+                  </div>
                 <div className="flex items-center gap-2 text-sm">
                   <Users className="h-4 w-4 text-muted-foreground" />
                   <span>{evento.nombre_organizador}</span>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { iEvento, iPatrocinador, IUbicacion, IComentario,  IComentarioEve,IComentarioResponse ,iUser, ICreateComentarioBlb, IComentarioBlb  } from '@/components/interface';
+import { iEvento, iPatrocinador, IUbicacion, IComentario, IComentarioEve,  iUser  } from '@/components/interface';
 import useLocalStorage from '@/hooks/useLocalStorage';
 import { Mapa } from '@/components/ubicacion/Mapa';
 import { apiService } from '@/service/apiservice';
@@ -11,8 +11,13 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import MainLayout from '@/templates/MainLayout';
 import { toast } from 'sonner';
-
+import { FaMoneyBill } from 'react-icons/fa';
+interface Expositor {
+    id: number;
+    nombre: string;
+}
 export const ShowEvento = () => {
+    const [expositores, setExpositores] = React.useState<Expositor[]>([]);
     const [evento, setEvento] = useLocalStorage<iEvento>('selectedEvento', {} as iEvento);
     const [ubicacion, setUbicacion] = React.useState<IUbicacion>();
     const [patrocinadores, setPatrocinadores] = React.useState<iPatrocinador[]>([]);
@@ -32,14 +37,15 @@ export const ShowEvento = () => {
 
         return `${day}/${month}/${year}`;
     }
+    console.log('Fetching expositores for evento ID:', evento);
 
     const fetchComments = async () => {
         await apiService.get(`comentario_evento`).then((response) => {
-          const data : any = response.data
-          const filteredComments = data.filter((comment: IComentarioEve) => comment.id_evento === evento?.id)
-          setComentarios(filteredComments)
+            const data: any = response.data
+            const filteredComments = data.filter((comment: IComentarioEve) => comment.id_evento === evento?.id)
+            setComentarios(filteredComments)
         })
-      } 
+    }
 
     const fetchData = async () => {
         try {
@@ -49,9 +55,14 @@ export const ShowEvento = () => {
             const patrocinadoresResponse = await apiService.get(`patrocinador_evento/evento/${evento.id}`);
             setPatrocinadores(patrocinadoresResponse.data);
 
+            const expositoresResponse = await apiService.get(`expositor/byEventoId/${evento.id}`);
+            console.log('Expositores:', expositoresResponse.data);
+            setExpositores(expositoresResponse.data);
+
             const isRegistradoEvento = await apiService.get(`usuario/{usuarioId}?usuario_eventoId=${userC?.id}`);
             const data = isRegistradoEvento.data
             const isRegistered = data.some((evento: any) => evento.id_evento === evento?.id);
+
             if (isRegistered) {
                 setIsRegistered(true)
             }
@@ -63,9 +74,9 @@ export const ShowEvento = () => {
         }
     };
 
-    const registerEvento = async() => {
+    const registerEvento = async () => {
         if (userC !== null) {
-            await apiService.post('usuario_evento',{
+            await apiService.post('usuario_evento', {
                 id_usuario: userC.id,
                 id_evento: evento?.id || 0
             }).then((response) => {
@@ -77,41 +88,41 @@ export const ShowEvento = () => {
             })
         }
         else {
-            
+
             alert('Debes iniciar sesión para registrarte en el evento')
         }
     }
 
     const handleAddComment = async () => {
-        const hoy =  new Date()
+        const hoy = new Date()
         if (userC !== null) {
-          const newCommentData: IComentario = {
-            id: 0,
-            id_usuario: userC.id,
-            contenido: nuevoComentario,
-            fecha_creacion: hoy.toISOString().split('T')[0]
-          }
-          await apiService.post('comentario', newCommentData).then(async (response) => {
-              const data : any = response.data
-    
-              console.log(response)
-              const newCommentBlb: any = {
-                id_comentario: data.id,
-                id_evento: evento?.id || 0
-              }
-              await apiService.post('comentario_evento', newCommentBlb).then((response) => {
+            const newCommentData: IComentario = {
+                id: 0,
+                id_usuario: userC.id,
+                contenido: nuevoComentario,
+                fecha_creacion: hoy.toISOString().split('T')[0]
+            }
+            await apiService.post('comentario', newCommentData).then(async (response) => {
+                const data: any = response.data
+
                 console.log(response)
-              })
-          })
-        if (nuevoComentario.trim()) {
-          fetchComments()
-          setNuevoComentario('')
-        }
+                const newCommentBlb: any = {
+                    id_comentario: data.id,
+                    id_evento: evento?.id || 0
+                }
+                await apiService.post('comentario_evento', newCommentBlb).then((response) => {
+                    console.log(response)
+                })
+            })
+            if (nuevoComentario.trim()) {
+                fetchComments()
+                setNuevoComentario('')
+            }
         }
         else {
             alert('Debes iniciar sesión para comentar')
         }
-      }
+    }
 
     React.useEffect(() => {
         if (evento?.id) {
@@ -129,9 +140,9 @@ export const ShowEvento = () => {
     return (
         <MainLayout>
             <div className="w-full px-4 py-6 max-w-7xl mx-auto space-y-8">
-               
+
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                
+
                     <div className="lg:col-span-2">
                         <div className="relative aspect-video overflow-hidden rounded-xl shadow-lg">
                             <img
@@ -146,14 +157,14 @@ export const ShowEvento = () => {
                         <div>
                             {!isRegistered ? (<Button className="w-full sm:w-auto" onClick={() => registerEvento()}>
                                 Registrarse en el evento
-                            </Button>):(
+                            </Button>) : (
                                 <Button className="w-full sm:w-auto" disabled>
                                     Ya estás registrado
                                 </Button>
                             )}
                         </div>
                         <div>
-                            <h1 className="text-3xl font-bold">{evento.nombre}</h1>
+                            <h1 className="text-slate-900 text-3xl  font-bold">{evento.nombre}</h1>
                             <div className="flex items-center gap-2 mt-2 text-muted-foreground">
                                 <Users className="h-4 w-4" />
                                 <span>Organizado por {evento.nombre_organizador}</span>
@@ -172,13 +183,22 @@ export const ShowEvento = () => {
                                     </div>
                                 </div>
 
-                                <div className="flex items-start gap-4">
-                                    <MapPin className="h-5 w-5 mt-0.5 text-primary" />
-                                    <div>
-                                        <p className="font-medium">Ubicación</p>
-                                        <p className="text-sm text-muted-foreground">{evento.nombre_ubicacion}</p>
+                                {evento.categoria === 'presencial' ? (
+                                    <div className="flex items-start gap-4">
+                                        <MapPin className="h-5 w-5 mt-0.5 text-primary" />
+                                        <div>
+                                            <p className="font-medium">Ubicación</p>
+                                            <p className="text-sm text-muted-foreground">{evento.nombre_ubicacion}</p>
+                                        </div>
                                     </div>
-                                </div>
+                                ) : (
+                                    <div className="flex items-start gap-4">
+                                        <div>
+                                            <p className="font-medium">Enlace</p>
+                                            <p className="text-sm text-muted-foreground">{evento.enlace}</p>
+                                        </div>
+                                    </div>
+                                )}
 
                                 <div className="flex items-start gap-4">
                                     <User className="h-5 w-5 mt-0.5 text-primary" />
@@ -187,13 +207,20 @@ export const ShowEvento = () => {
                                         <p className="text-sm text-muted-foreground">{evento.nombre_usuario}</p>
                                     </div>
                                 </div>
+                                <div className="flex items-start gap-4">
+                                    <FaMoneyBill className="h-5 w-5 mt-0.5 text-primary" />
+                                    <div>
+                                        <p className="font-medium">Costo</p>
+                                        <p className="text-sm text-muted-foreground">{evento.precio}</p>
+                                    </div>
+                                </div>
                             </CardContent>
                         </Card>
                     </div>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    
+
                     <div className="lg:col-span-2">
                         <Card>
                             <CardHeader>
@@ -205,23 +232,54 @@ export const ShowEvento = () => {
                         </Card>
                     </div>
 
-                    <div>
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>Ubicación</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                {ubicacion && (
-                                    <div className="h-64 rounded-lg overflow-hidden">
-                                        <Mapa ubicacion={ubicacion} key={`map-${ubicacion.id}`} />
-                                    </div>
-                                )}
-                                <p className="mt-2 text-sm text-muted-foreground">{ubicacion?.nombre || 'Cargando ubicación...'}</p>
-                            </CardContent>
-                        </Card>
-                    </div>
+                    {evento.categoria === 'presencial' && (
+                        <div>
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle>Ubicación</CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    {ubicacion && (
+                                        <div className="h-64 rounded-lg overflow-hidden">
+                                            <Mapa ubicacion={ubicacion} key={`map-${ubicacion.id}`} />
+                                        </div>
+                                    )}
+                                    <p className="mt-2 text-sm text-muted-foreground">{ubicacion?.nombre || 'Cargando ubicación...'}</p>
+                                </CardContent>
+                            </Card>
+                        </div>
+                    )}
                 </div>
-
+                {expositores.length > 0 && (
+                    <div className="space-y-4">
+                        <h2 className="text-2xl font-bold">Expositores</h2>
+                        <Carousel className="w-full">
+                            <CarouselContent>
+                                {expositores.map((expositor) => (
+                                    <CarouselItem key={expositor.id} className="sm:basis-1/2 md:basis-1/3 lg:basis-1/4">
+                                        <div className="p-2">
+                                            <Card className="h-full transition-all hover:shadow-md">
+                                                <CardContent className="flex flex-col items-center p-6 gap-4">
+                                                    <Avatar className="h-20 w-20 bg-primary/10">
+                                                        <AvatarFallback className="text-lg bg-primary/20 text-primary">
+                                                            {expositor.nombre.charAt(0)}
+                                                        </AvatarFallback>
+                                                    </Avatar>
+                                                    <div className="text-center space-y-1">
+                                                        <p className="font-medium">{expositor.nombre}</p>
+                                                        <p className="text-sm text-muted-foreground">Expositor</p>
+                                                    </div>
+                                                </CardContent>
+                                            </Card>
+                                        </div>
+                                    </CarouselItem>
+                                ))}
+                            </CarouselContent>
+                            <CarouselPrevious className="hidden sm:flex" />
+                            <CarouselNext className="hidden sm:flex" />
+                        </Carousel>
+                    </div>
+                )}
                 {patrocinadores.length > 0 && (
                     <div className="space-y-4">
                         <h2 className="text-2xl font-bold">Patrocinadores</h2>
@@ -261,8 +319,8 @@ export const ShowEvento = () => {
                                 </CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-4">
-                                
-                                
+
+
 
                                 <div className="space-y-4 overflow-y-auto max-h-60">
                                     {comentarios.length > 0 ? (
@@ -283,16 +341,16 @@ export const ShowEvento = () => {
                                         <p className="text-sm text-muted-foreground text-center py-4">No hay comentarios aún</p>
                                     )}
                                 </div>
-                                
+
                                 <Textarea
-                                        value={nuevoComentario}
-                                        onChange={(e) => setNuevoComentario(e.target.value)}
-                                        placeholder="Escribe tu comentario..."
-                                        className="min-h-[100px]"
-                                    />
-                                    <Button className="w-full sm:w-auto" onClick={handleAddComment}>
-                                        Publicar comentario
-                                    </Button>
+                                    value={nuevoComentario}
+                                    onChange={(e) => setNuevoComentario(e.target.value)}
+                                    placeholder="Escribe tu comentario..."
+                                    className="min-h-[100px]"
+                                />
+                                <Button className="w-full sm:w-auto" onClick={handleAddComment}>
+                                    Publicar comentario
+                                </Button>
                             </CardContent>
                         </Card>
                     </div>
