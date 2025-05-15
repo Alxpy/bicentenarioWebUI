@@ -23,12 +23,6 @@ export const ShowLibro = () => {
     })
   }
 
-/*************  ✨ Windsurf Command ⭐  *************/
-  /**
-   * Fetches comments from the API and filters them to show only the comments
-   * for the current book.
-   */
-/*******  abb144c9-c25c-48a8-8dcd-a3161d3c8e00  *******/
   const fetchComments = async () => {
     await apiService.get(`comentario_biblioteca`).then((response) => {
       const data : any = response.data
